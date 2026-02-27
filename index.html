@@ -447,8 +447,10 @@
         const recordList = document.getElementById('recordList');
         let recordCount = 0;
 
-        // 自动揭开的阈值与状态
-        const AUTO_REVEAL_THRESHOLD = 50;
+        // 自动揭开的阈值与状态（手机端 70%，电脑端 50%）
+        function getAutoRevealThreshold() {
+            return (window.innerWidth || document.documentElement.clientWidth || 0) <= 720 ? 70 : 50;
+        }
         let hasAutoRevealed = false;
 
         // 奖项文字缩放动画状态
@@ -510,7 +512,8 @@
 
         function handleScratchedPercent(percent) {
             updateProgress(percent);
-            if (!hasAutoRevealed && percent >= AUTO_REVEAL_THRESHOLD) {
+            const threshold = getAutoRevealThreshold();
+            if (!hasAutoRevealed && percent >= threshold) {
                 triggerAutoReveal();
             }
         }
@@ -635,9 +638,11 @@
 
             // 奖项内容（超出宽度自动多行居中，并带轻微缩放动画）
             ctxPrize.fillStyle = '#d0183f';
-            const contentFont = 'bold 44px "KaiTi", "楷体", "Segoe UI", curs-serif, sans-serif';
+            const baseSize = Math.min(w, h);
+            const contentFontSize = baseSize < 420 ? 32 : 40; // 小屏用更小字号
+            const contentFont = `bold ${contentFontSize}px "KaiTi", "楷体", "Segoe UI", curs-serif, sans-serif`;
             const maxContentWidth = w * 0.75; // 内容最大宽度占画布 75%
-            const lineHeight = 56;            // 行高稍微增大以适配更大字号
+            const lineHeight = Math.round(contentFontSize * 1.25); // 行高跟随字号
 
             ctxPrize.save();
             ctxPrize.translate(w / 2, h / 2 + 10);
@@ -666,7 +671,7 @@
             ctxPrize.fillStyle = '#b33b5c';
             ctxPrize.shadowBlur = 8;
             ctxPrize.shadowColor = '#ffc6d5';
-            const candyRadius = Math.min(w, h) * 0.38; // 略大于原来的 140，贴近边缘一些
+            const candyRadius = Math.min(w, h) * 0.45; // 再往外一些，避免遮挡文字
             for (let ang = 0; ang < 360; ang += 45) {
                 let rad = ang * Math.PI / 180;
                 let x = w/2 + Math.cos(rad) * candyRadius;

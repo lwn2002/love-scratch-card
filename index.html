@@ -597,6 +597,7 @@
         function drawPrizeLayer() {
             const w = prizeCanvas.width;
             const h = prizeCanvas.height;
+            const baseSize = Math.min(w, h);
 
             // 暖色浪漫背景
             ctxPrize.clearRect(0, 0, w, h);
@@ -631,14 +632,14 @@
             // 当前奖项文本
             const prizeText = prizes[currentPrizeIndex] || '今日愿望成真';
 
-            // 奖项标题
-            ctxPrize.font = 'bold 32px "KaiTi", "楷体", "Segoe UI", cursive, sans-serif';
+            // 奖项标题（手机端略小）
+            const titleFontSize = baseSize < 420 ? 24 : 32;
+            ctxPrize.font = `bold ${titleFontSize}px "KaiTi", "楷体", "Segoe UI", cursive, sans-serif`;
             ctxPrize.fillStyle = '#a02c5a';
             ctxPrize.fillText('今日的小惊喜', w/2, h/3.3);
 
             // 奖项内容（超出宽度自动多行居中，并带轻微缩放动画）
             ctxPrize.fillStyle = '#d0183f';
-            const baseSize = Math.min(w, h);
             const contentFontSize = baseSize < 420 ? 32 : 40; // 小屏用更小字号
             const contentFont = `bold ${contentFontSize}px "KaiTi", "楷体", "Segoe UI", curs-serif, sans-serif`;
             const maxContentWidth = w * 0.75; // 内容最大宽度占画布 75%
@@ -658,25 +659,40 @@
             );
             ctxPrize.restore();
 
-            // 底部小字
-            ctxPrize.font = 'bold 24px "Segoe UI", "微软雅黑", cursive';
+            // 底部小字（手机端略小）
+            const footerFontSize = baseSize < 420 ? 18 : 24;
+            ctxPrize.font = `bold ${footerFontSize}px "Segoe UI", "微软雅黑", cursive`;
             ctxPrize.fillStyle = '#a1355c';
             ctxPrize.fillText('· 刮到就要兑现哦 ·', w/2, h - 70);
 
             ctxPrize.restore();
 
-            // 画一圈浪漫小字（稍微远离中间区域，避免挡住文字）
+            // 糖果装饰：电脑端一圈，手机端改为底部一排，避免挡住文字
             ctxPrize.save();
             ctxPrize.font = 'bold 18px "KaiTi", cursive';
             ctxPrize.fillStyle = '#b33b5c';
             ctxPrize.shadowBlur = 8;
             ctxPrize.shadowColor = '#ffc6d5';
-            const candyRadius = Math.min(w, h) * 0.45; // 再往外一些，避免遮挡文字
-            for (let ang = 0; ang < 360; ang += 45) {
-                let rad = ang * Math.PI / 180;
-                let x = w/2 + Math.cos(rad) * candyRadius;
-                let y = h/2 + Math.sin(rad) * candyRadius;
-                ctxPrize.fillText('🍬', x, y);
+            if (baseSize < 420) {
+                // 手机端：底部一排小糖果
+                const rowY = h - 40;
+                const count = 7;
+                const startX = w * 0.18;
+                const endX = w * 0.82;
+                const step = (endX - startX) / (count - 1);
+                for (let i = 0; i < count; i++) {
+                    const x = startX + step * i;
+                    ctxPrize.fillText('🍬', x, rowY);
+                }
+            } else {
+                // 电脑端：一圈浪漫小字
+                const candyRadius = Math.min(w, h) * 0.45;
+                for (let ang = 0; ang < 360; ang += 45) {
+                    let rad = ang * Math.PI / 180;
+                    let x = w/2 + Math.cos(rad) * candyRadius;
+                    let y = h/2 + Math.sin(rad) * candyRadius;
+                    ctxPrize.fillText('🍬', x, y);
+                }
             }
             ctxPrize.restore();
         }

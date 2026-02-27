@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>💕 专属刮刮乐 · 只为你</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: linear-gradient(145deg, #fbc2c2 0%, #f8afaf 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            padding: 16px;
+            margin: 0;
+            touch-action: manipulation;
+        }
+
+        .card {
+            max-width: 780px;
+            width: 100%;
+            background: rgba(255, 240, 240, 0.75);
+            backdrop-filter: blur(6px);
+            border-radius: 48px 48px 36px 36px;
+            box-shadow: 0 30px 40px rgba(199, 67, 67, 0.25), 0 8px 20px rgba(180, 40, 40, 0.3);
+            padding: 28px 20px 38px 20px;
+            border: 2px solid #ffd7d7;
+            transition: all 0.2s;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 2.1rem;
+            font-weight: 800;
+            letter-spacing: 6px;
+            color: #b34141;
+            text-shadow: 3px 3px 0 #ffe0e0;
+            margin-top: -8px;
+            margin-bottom: 8px;
+            word-break: keep-all;
+        }
+
+        .sub {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #a14b4b;
+            background: #ffefef;
+            padding: 10px 18px;
+            border-radius: 100px;
+            margin: 0 16px 22px 16px;
+            font-weight: 500;
+            box-shadow: inset 0 1px 4px #ffbaba;
+            border: 1px solid #fcc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .main-row {
+            display: flex;
+            gap: 16px;
+            align-items: stretch;
+        }
+
+        .scratch-container {
+            position: relative;
+            flex: 1.1;
+            aspect-ratio: 1 / 1;
+            border-radius: 42px;
+            overflow: hidden;
+            box-shadow: 0 15px 0 #ac4c4c, 0 20px 25px rgba(0,0,0,0.25);
+            border: 3px solid #ffe9e9;
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="8" cy="8" r="8" fill="none" stroke="%23ff5577" stroke-width="2"/><circle cx="16" cy="16" r="14" fill="%23ff99aa" opacity="0.6" /><path d="M6 6 L14 14 M14 6 L6 14" stroke="%23b32d4d" stroke-width="3"/></svg>') 16 16, cell;
+            touch-action: none;  /* 禁止触摸滚动 */
+        }
+
+        .scratch-container.flash-effect {
+            animation: flashGlow 0.5s ease-out;
+        }
+
+        @keyframes flashGlow {
+            0% {
+                box-shadow: 0 15px 0 #ac4c4c, 0 20px 25px rgba(0,0,0,0.25);
+                transform: scale(1);
+            }
+            40% {
+                box-shadow: 0 0 30px rgba(255, 255, 255, 0.9), 0 25px 35px rgba(0,0,0,0.35);
+                transform: scale(1.03);
+            }
+            100% {
+                box-shadow: 0 15px 0 #ac4c4c, 0 20px 25px rgba(0,0,0,0.25);
+                transform: scale(1);
+            }
+        }
+
+        .record-panel {
+            flex: 0.9;
+            background: #ffeef0;
+            border-radius: 30px;
+            border: 2px solid #ffc7cf;
+            box-shadow: inset 0 2px 6px rgba(255, 190, 200, 0.8);
+            padding: 14px 12px;
+            display: none; /* 有记录后再显示 */
+            min-width: 0;
+        }
+
+        .record-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #b1444f;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .record-list {
+            max-height: 100%;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .record-item {
+            font-size: 0.9rem;
+            color: #8b3a3f;
+            background: #fff8f8;
+            border-radius: 18px;
+            padding: 6px 10px;
+            margin-bottom: 6px;
+            border: 1px solid #ffd2d5;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            word-break: break-all;
+        }
+
+        .record-index {
+            background: #ff9aa8;
+            color: #fff;
+            border-radius: 999px;
+            padding: 1px 8px;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        @media (max-width: 720px) {
+            .main-row {
+                flex-direction: column;
+            }
+
+            .record-panel {
+                display: none; /* 小屏默认隐藏，首次有记录再显示为块状 */
+            }
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            pointer-events: none; /* 下层canvas不接收事件，由上层canvas统一处理 */
+        }
+
+        #scratchCanvas {
+            pointer-events: auto;  /* 只有银色的刮层可以交互 */
+            z-index: 10;
+        }
+
+        #prizeCanvas {
+            z-index: 5;
+            background: #fee3e3;  /* 暖色底 */
+        }
+
+        /* 刮开百分比指示器 */
+        .progress-bar {
+            margin-top: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffe3e3;
+            border-radius: 60px;
+            padding: 6px 6px 6px 18px;
+            border: 2px solid #ffb5b5;
+            box-shadow: inset 0 2px 5px #f5c2c2;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff7e7e, #ff4242);
+            border-radius: 60px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 12px #ff8383;
+        }
+
+        .progress-text {
+            font-weight: 700;
+            color: #952525;
+            font-size: 1.2rem;
+            background: white;
+            padding: 6px 16px;
+            border-radius: 40px;
+            border: 2px solid #ff9393;
+            min-width: 75px;
+            text-align: center;
+            box-shadow: 0 2px 0 #c66;
+        }
+
+        .hint {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 18px 8px 8px 8px;
+            color: #833a3a;
+            font-weight: 500;
+            gap: 10px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .reset-btn {
+            background: #ffc9c9;
+            border: none;
+            border-radius: 40px;
+            padding: 12px 28px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #811e1e;
+            border: 2px solid #ff8686;
+            box-shadow: 0 5px 0 #b14b4b;
+            transition: 0.05s linear;
+            cursor: pointer;
+            touch-action: manipulation;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .clear-btn {
+            background: #ffe7e7;
+            border: none;
+            border-radius: 40px;
+            padding: 10px 18px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #904349;
+            border: 2px solid #ffb6c0;
+            box-shadow: 0 3px 0 #c27a83;
+            transition: 0.05s linear;
+            cursor: pointer;
+            touch-action: manipulation;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .clear-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #c27a83;
+        }
+
+        .reset-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 1px 0 #b14b4b;
+        }
+
+        .footer {
+            font-size: 0.95rem;
+            color: #b25d5d;
+            text-align: center;
+            margin-top: 16px;
+            font-style: italic;
+            background: #fff0f0b0;
+            padding: 8px;
+            border-radius: 60px;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="title">💝 刮刮乐 💝</div>
+    <div class="sub"><span>✨ 手指 / 鼠标 刮开 ✨</span></div>
+
+    <div class="main-row">
+        <div class="scratch-container" id="scratchContainer">
+            <!-- 底层奖品 canvas 用JS绘制 -->
+            <canvas id="prizeCanvas" width="500" height="500"></canvas>
+            <!-- 上层灰色刮层 canvas -->
+            <canvas id="scratchCanvas" width="500" height="500"></canvas>
+        </div>
+        <div class="record-panel" id="recordPanel">
+            <div class="record-title">历史记录</div>
+            <div class="record-list" id="recordList"></div>
+        </div>
+    </div>
+
+    <div class="progress-bar">
+        <span style="display: flex; align-items: center; gap: 5px;">❤️ <span id="percentLabel">0%</span></span>
+        <div style="flex:1; height: 24px; background: #ffcaca; border-radius: 60px; margin: 0 10px; overflow: hidden; border: 2px solid #ff9595;">
+            <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+        </div>
+        <span id="progressPercent" class="progress-text">0%</span>
+    </div>
+
+    <div class="hint">
+        <span>💎 再刮一点惊喜就出现</span>
+        <div class="btn-group">
+            <button class="reset-btn" id="resetBtn">⟳ 重新刮</button>
+            <button class="clear-btn" id="clearRecordBtn">✦ 清空记录</button>
+        </div>
+    </div>
+    <div class="footer">—— 只属于我们的小幸运 ——</div>
+</div>
+
+<script>
+    (function(){
+        // --- 获取画布 ---
+        const scratchCanvas = document.getElementById('scratchCanvas');
+        const prizeCanvas = document.getElementById('prizeCanvas');
+        const ctxScratch = scratchCanvas.getContext('2d', { willReadFrequently: true });
+        const ctxPrize = prizeCanvas.getContext('2d');
+
+        // 奖项列表（可继续自行增加）
+        const prizes = [
+            '今日学习3小时',
+            '奖励5元',
+            '奖励1元',
+            '今日不用学习',
+            '奖励一杯奶茶',
+            '今日学习1小时',
+            '惩罚拍摸摸视频',
+            '惩罚拍内裤照片',
+            '惩罚拍内衣照片',
+            '奖励拍大长腿照片一张',
+            '奖励10元',
+            // 情侣小情趣（示例，可按喜好改）
+            '奖励按摩券15分钟',
+            '今晚睡前故事券一张',
+            '今天所有“亲亲”次数你来决定',
+            '今天你点外卖我买单',
+            '今日获得一次赖床特权'
+        ];
+
+        // 当前抽中的奖项索引
+        let currentPrizeIndex = Math.floor(Math.random() * prizes.length);
+        // 历史记录
+        const recordPanel = document.getElementById('recordPanel');
+        const recordList = document.getElementById('recordList');
+        let recordCount = 0;
+
+        // 自动揭开的阈值与状态
+        const AUTO_REVEAL_THRESHOLD = 50;
+        let hasAutoRevealed = false;
+
+        // 奖项文字缩放动画状态
+        let prizeScale = 1;
+        let prizeScaleAnimating = false;
+        let prizeScaleStartTime = 0;
+        const PRIZE_SCALE_DURATION = 260; // 毫秒
+        let prizeScaleFrameId = null;
+
+        function addRecordItem(text) {
+            if (!recordPanel || !recordList || !text) return;
+            recordPanel.style.display = 'block';
+
+            const item = document.createElement('div');
+            item.className = 'record-item';
+
+            const indexSpan = document.createElement('span');
+            indexSpan.className = 'record-index';
+            indexSpan.textContent = String(++recordCount);
+
+            const textSpan = document.createElement('span');
+            textSpan.textContent = text;
+
+            item.appendChild(indexSpan);
+            item.appendChild(textSpan);
+            recordList.appendChild(item);
+
+            // 滚动到底部，看到最新一条
+            recordList.scrollTop = recordList.scrollHeight;
+        }
+
+        function triggerAutoReveal() {
+            if (hasAutoRevealed || !scratchCanvas) return;
+            hasAutoRevealed = true;
+
+            const w = scratchCanvas.width;
+            const h = scratchCanvas.height;
+
+            ctxScratch.save();
+            ctxScratch.globalCompositeOperation = 'destination-out';
+            ctxScratch.fillStyle = 'rgba(0,0,0,1)';
+            ctxScratch.fillRect(0, 0, w, h);
+            ctxScratch.restore();
+
+            isDrawing = false;
+            updateProgress(100);
+
+            const containerEl = document.getElementById('scratchContainer');
+            if (containerEl) {
+                containerEl.classList.remove('flash-effect');
+                // 触发一次闪光动画
+                void containerEl.offsetWidth; // 强制回流，重置动画
+                containerEl.classList.add('flash-effect');
+                setTimeout(() => {
+                    containerEl.classList.remove('flash-effect');
+                }, 600);
+            }
+        }
+
+        function handleScratchedPercent(percent) {
+            updateProgress(percent);
+            if (!hasAutoRevealed && percent >= AUTO_REVEAL_THRESHOLD) {
+                triggerAutoReveal();
+            }
+        }
+
+        function startPrizeScaleAnimation() {
+            prizeScaleAnimating = true;
+            prizeScaleStartTime = performance.now();
+            if (prizeScaleFrameId) {
+                cancelAnimationFrame(prizeScaleFrameId);
+            }
+            const animate = (now) => {
+                const elapsed = now - prizeScaleStartTime;
+                const t = Math.min(1, elapsed / PRIZE_SCALE_DURATION);
+                // 轻微弹跳：1 -> 1.1 -> 1
+                prizeScale = 1 + 0.1 * Math.sin(t * Math.PI);
+                drawPrizeLayer();
+                if (t < 1) {
+                    prizeScaleFrameId = requestAnimationFrame(animate);
+                } else {
+                    prizeScale = 1;
+                    prizeScaleAnimating = false;
+                }
+            };
+            prizeScaleFrameId = requestAnimationFrame(animate);
+        }
+
+        // 在指定最大宽度内自动按字拆分为多行并居中绘制
+        function drawWrappedCenteredText(ctx, text, centerX, centerY, maxWidth, baseFont, lineHeight) {
+            ctx.font = baseFont;
+            const chars = Array.from(text); // 兼容中英文 / emoji
+            const lines = [];
+            let currentLine = '';
+
+            for (let i = 0; i < chars.length; i++) {
+                const testLine = currentLine + chars[i];
+                const metrics = ctx.measureText(testLine);
+                const testWidth = metrics.width;
+                if (testWidth > maxWidth && currentLine !== '') {
+                    lines.push(currentLine);
+                    currentLine = chars[i];
+                } else {
+                    currentLine = testLine;
+                }
+            }
+            if (currentLine) {
+                lines.push(currentLine);
+            }
+
+            const totalHeight = lines.length * lineHeight;
+            let startY = centerY - (totalHeight - lineHeight) / 2;
+
+            for (let i = 0; i < lines.length; i++) {
+                ctx.fillText(lines[i], centerX, startY + i * lineHeight);
+            }
+        }
+
+        // --- 设置画布实际分辨率 (适配高分屏) ---
+        function resizeCanvases() {
+            const container = document.getElementById('scratchContainer');
+            const containerWidth = container.clientWidth;
+            const containerHeight = container.clientHeight; // 由aspect-ratio决定，一般等于宽度
+            if (containerWidth === 0) return;
+
+            // 设置canvas元素尺寸为CSS尺寸的两倍(防止模糊)
+            const dpr = window.devicePixelRatio || 1;
+            const displayWidth = containerWidth;
+            const displayHeight = containerHeight;
+
+            if (scratchCanvas.width !== displayWidth || scratchCanvas.height !== displayHeight) {
+                scratchCanvas.width = displayWidth;
+                scratchCanvas.height = displayHeight;
+                prizeCanvas.width = displayWidth;
+                prizeCanvas.height = displayHeight;
+            }
+            // 重绘内容
+            drawPrizeLayer();
+            resetScratchLayer();
+        }
+
+        // --- 奖品层绘制 (你定内容！) ---
+        function drawPrizeLayer() {
+            const w = prizeCanvas.width;
+            const h = prizeCanvas.height;
+
+            // 暖色浪漫背景
+            ctxPrize.clearRect(0, 0, w, h);
+            const gradient = ctxPrize.createLinearGradient(0, 0, w*0.8, h);
+            gradient.addColorStop(0, '#ffd0d0');
+            gradient.addColorStop(0.5, '#ffe6b0');
+            gradient.addColorStop(1, '#ffc8dd');
+            ctxPrize.fillStyle = gradient;
+            ctxPrize.fillRect(0, 0, w, h);
+
+            // 画一些小心心装饰
+            ctxPrize.save();
+            ctxPrize.shadowColor = '#ff7b7b';
+            ctxPrize.shadowBlur = 12;
+            for (let i = 0; i < 7; i++) {
+                ctxPrize.fillStyle = `rgba(255, 100, 130, ${0.2 + Math.random()*0.2})`;
+                ctxPrize.beginPath();
+                ctxPrize.arc(40 + i*70, 50 + (i%3)*20, 18, 0, 2*Math.PI);
+                ctxPrize.fill();
+            }
+            ctxPrize.restore();
+
+            // ----- 主要奖品/情话内容 (由你定!!!) -----
+            ctxPrize.save();
+            ctxPrize.textAlign = 'center';
+            ctxPrize.textBaseline = 'middle';
+            ctxPrize.shadowColor = '#ff9bb5';
+            ctxPrize.shadowBlur = 12;
+            ctxPrize.shadowOffsetX = 2;
+            ctxPrize.shadowOffsetY = 2;
+
+            // 当前奖项文本
+            const prizeText = prizes[currentPrizeIndex] || '今日愿望成真';
+
+            // 奖项标题
+            ctxPrize.font = 'bold 32px "KaiTi", "楷体", "Segoe UI", cursive, sans-serif';
+            ctxPrize.fillStyle = '#a02c5a';
+            ctxPrize.fillText('今日的小惊喜', w/2, h/3.3);
+
+            // 奖项内容（超出宽度自动多行居中，并带轻微缩放动画）
+            ctxPrize.fillStyle = '#d0183f';
+            const contentFont = 'bold 44px "KaiTi", "楷体", "Segoe UI", curs-serif, sans-serif';
+            const maxContentWidth = w * 0.75; // 内容最大宽度占画布 75%
+            const lineHeight = 56;            // 行高稍微增大以适配更大字号
+
+            ctxPrize.save();
+            ctxPrize.translate(w / 2, h / 2 + 10);
+            ctxPrize.scale(prizeScale, prizeScale);
+            drawWrappedCenteredText(
+                ctxPrize,
+                prizeText,
+                0,
+                0,
+                maxContentWidth,
+                contentFont,
+                lineHeight
+            );
+            ctxPrize.restore();
+
+            // 底部小字
+            ctxPrize.font = 'bold 24px "Segoe UI", "微软雅黑", cursive';
+            ctxPrize.fillStyle = '#a1355c';
+            ctxPrize.fillText('· 刮到就要兑现哦 ·', w/2, h - 70);
+
+            ctxPrize.restore();
+
+            // 画一圈浪漫小字（稍微远离中间区域，避免挡住文字）
+            ctxPrize.save();
+            ctxPrize.font = 'bold 18px "KaiTi", cursive';
+            ctxPrize.fillStyle = '#b33b5c';
+            ctxPrize.shadowBlur = 8;
+            ctxPrize.shadowColor = '#ffc6d5';
+            const candyRadius = Math.min(w, h) * 0.38; // 略大于原来的 140，贴近边缘一些
+            for (let ang = 0; ang < 360; ang += 45) {
+                let rad = ang * Math.PI / 180;
+                let x = w/2 + Math.cos(rad) * candyRadius;
+                let y = h/2 + Math.sin(rad) * candyRadius;
+                ctxPrize.fillText('🍬', x, y);
+            }
+            ctxPrize.restore();
+        }
+
+        // --- 初始化刮层 (银色磨砂质感) ---
+        function resetScratchLayer() {
+            const w = scratchCanvas.width;
+            const h = scratchCanvas.height;
+
+            // 银光闪闪刮层
+            ctxScratch.clearRect(0, 0, w, h);
+            const grad = ctxScratch.createLinearGradient(0, 0, w*0.8, h*0.7);
+            grad.addColorStop(0, '#c0c0c0');
+            grad.addColorStop(0.3, '#efefef');
+            grad.addColorStop(0.6, '#a0a0a0');
+            grad.addColorStop(1, '#d3d3d3');
+            ctxScratch.fillStyle = grad;
+            ctxScratch.fillRect(0, 0, w, h);
+
+            // 添加细碎闪光颗粒
+            ctxScratch.save();
+            ctxScratch.shadowBlur = 8;
+            ctxScratch.shadowColor = '#ffffff';
+            for (let i = 0; i < 90; i++) {
+                ctxScratch.fillStyle = `rgba(255,255,255,${0.3+Math.random()*0.5})`;
+                ctxScratch.beginPath();
+                ctxScratch.arc(Math.random()*w, Math.random()*h, 1+Math.random()*3, 0, 2*Math.PI);
+                ctxScratch.fill();
+            }
+            ctxScratch.restore();
+
+            // 加一点斜线纹理
+            ctxScratch.strokeStyle = 'rgba(80,80,80,0.1)';
+            ctxScratch.lineWidth = 1.5;
+            for (let i = 0; i < w; i += 15) {
+                ctxScratch.beginPath();
+                ctxScratch.moveTo(i, 0);
+                ctxScratch.lineTo(i + 20, h);
+                ctxScratch.stroke();
+            }
+
+            // 提示文字 (刮开指引)
+            ctxScratch.save();
+            ctxScratch.shadowBlur = 10;
+            ctxScratch.shadowColor = '#333';
+            ctxScratch.font = 'bold 22px "Segoe UI", "楷体", cursive';
+            ctxScratch.fillStyle = '#3d2b2b';
+            ctxScratch.globalAlpha = 0.5;
+            ctxScratch.fillText('轻轻刮开', w/2-80, h/2-30);
+            ctxScratch.font = 'bold 26px "Segoe UI", "楷体", cursive';
+            ctxScratch.fillText('❤️ 惊喜 ❤️', w/2-85, h/2+30);
+            ctxScratch.restore();
+
+            // 重置绘制状态
+            ctxScratch.globalCompositeOperation = 'source-over';
+            ctxScratch.lineCap = 'round';
+            ctxScratch.lineJoin = 'round';
+            // 重置百分比与自动揭开状态
+            hasAutoRevealed = false;
+            updateProgress(0);
+            isDrawing = false;
+        }
+
+        // --- 进度计算 & 显示 ---
+        function calculateScratchedPercent() {
+            const w = scratchCanvas.width;
+            const h = scratchCanvas.height;
+            if (w === 0 || h === 0) return 0;
+
+            try {
+                const imageData = ctxScratch.getImageData(0, 0, w, h);
+                const data = imageData.data;
+                let transparentPixels = 0;
+                const totalPixels = w * h;
+                // 每隔3像素采样一次加快速度 (不影响大概百分比)
+                for (let i = 3; i < data.length; i += 12) {  // 每4个值一个像素(rgba), 这里取alpha通道索引i+3, 跳着采样
+                    const alpha = data[i];  // 每四个一组： r,g,b,a ; i 从3开始是第一个像素的alpha
+                    if (alpha < 10) transparentPixels++;  // 接近透明表示刮开
+                }
+                let percent = (transparentPixels / (totalPixels/4)) * 100;  // 因为跳着采样除4
+                return Math.min(100, Math.round(percent));
+            } catch (e) {
+                return 0;
+            }
+        }
+
+        function updateProgress(percent) {
+            const fill = document.getElementById('progressFill');
+            const percentLabel = document.getElementById('percentLabel');
+            const progressPercent = document.getElementById('progressPercent');
+            if (fill) fill.style.width = percent + '%';
+            if (percentLabel) percentLabel.innerText = percent + '%';
+            if (progressPercent) progressPercent.innerText = percent + '%';
+        }
+
+        // --- 刮擦交互 ---
+        let isDrawing = false;
+        let lastX = 0, lastY = 0;
+
+        function getCanvasCoords(e) {
+            const rect = scratchCanvas.getBoundingClientRect();
+            const scaleX = scratchCanvas.width / rect.width;
+            const scaleY = scratchCanvas.height / rect.height;
+
+            let clientX, clientY;
+            if (e.touches) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+                e.preventDefault();
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+
+            const canvasX = (clientX - rect.left) * scaleX;
+            const canvasY = (clientY - rect.top) * scaleY;
+
+            // 边界限制
+            return {
+                x: Math.min(scratchCanvas.width-1, Math.max(0, canvasX)),
+                y: Math.min(scratchCanvas.height-1, Math.max(0, canvasY))
+            };
+        }
+
+        function startDraw(e) {
+            e.preventDefault();
+            isDrawing = true;
+            const coord = getCanvasCoords(e);
+            lastX = coord.x;
+            lastY = coord.y;
+            ctxScratch.beginPath();
+            ctxScratch.moveTo(lastX, lastY);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            e.preventDefault();
+
+            const coord = getCanvasCoords(e);
+            const currentX = coord.x;
+            const currentY = coord.y;
+
+            // 刮擦效果 —— 将线条区域变成完全透明 (destination-out: 保留背景，擦除前景)
+            ctxScratch.globalCompositeOperation = 'destination-out';
+            ctxScratch.lineWidth = 42;  // 笔触大小（甜蜜刮刮）
+            ctxScratch.lineCap = 'round';
+            ctxScratch.lineJoin = 'round';
+            ctxScratch.strokeStyle = 'rgba(0,0,0,1)'; // 在destination-out下颜色无所谓，透明度影响擦除强度
+            ctxScratch.beginPath();
+            ctxScratch.moveTo(lastX, lastY);
+            ctxScratch.lineTo(currentX, currentY);
+            ctxScratch.stroke();
+
+            // 添加随机散点，增加刮开范围
+            ctxScratch.beginPath();
+            ctxScratch.arc(currentX, currentY, 18, 0, Math.PI*2);
+            ctxScratch.fill();
+
+            // 恢复合成模式 以免影响后续
+            ctxScratch.globalCompositeOperation = 'source-over';
+
+            lastX = currentX;
+            lastY = currentY;
+
+            // 节流更新进度(每帧只计算一次)
+            if (!window._throttleTimer) {
+                window._throttleTimer = setTimeout(() => {
+                    const percent = calculateScratchedPercent();
+                    handleScratchedPercent(percent);
+                    window._throttleTimer = null;
+                }, 40);
+            }
+        }
+
+        function stopDraw(e) {
+            if (isDrawing) {
+                isDrawing = false;
+                ctxScratch.closePath();
+                // 最后计算一次精确进度
+                const percent = calculateScratchedPercent();
+                handleScratchedPercent(percent);
+            }
+            e.preventDefault();
+        }
+
+        // --- 绑定事件 ---
+        function bindEvents() {
+            scratchCanvas.addEventListener('mousedown', startDraw);
+            scratchCanvas.addEventListener('mousemove', draw);
+            scratchCanvas.addEventListener('mouseup', stopDraw);
+            scratchCanvas.addEventListener('mouseleave', stopDraw);
+
+            // 触摸事件
+            scratchCanvas.addEventListener('touchstart', startDraw, { passive: false });
+            scratchCanvas.addEventListener('touchmove', draw, { passive: false });
+            scratchCanvas.addEventListener('touchend', stopDraw, { passive: false });
+            scratchCanvas.addEventListener('touchcancel', stopDraw, { passive: false });
+        }
+
+        // --- 重置 ---
+        document.getElementById('resetBtn').addEventListener('click', function(e){
+            e.preventDefault();
+
+            // 先记录当前已经刮开的结果
+            const lastPrize = prizes[currentPrizeIndex];
+            if (lastPrize) {
+                addRecordItem(lastPrize);
+            }
+
+            // 每次重置前先随机一个新奖项，并触发文字缩放动画
+            currentPrizeIndex = Math.floor(Math.random() * prizes.length);
+            startPrizeScaleAnimation();
+            // 重新盖上刮层
+            resetScratchLayer();
+            updateProgress(0);
+        });
+
+        // --- 清空记录 ---
+        document.getElementById('clearRecordBtn').addEventListener('click', function(e){
+            e.preventDefault();
+            if (!recordList) return;
+            recordList.innerHTML = '';
+            recordCount = 0;
+        });
+
+        // 初始化 & 窗口大小自适应
+        window.addEventListener('resize', () => {
+            resizeCanvases();
+        });
+
+        // 启动
+        resizeCanvases();
+        bindEvents();
+
+        // 确保首次绘制完成
+        setTimeout(() => {
+            resizeCanvases(); 
+        }, 30);
+    })();
+</script>
+</body>
+</html>

@@ -701,6 +701,7 @@
         function resetScratchLayer() {
             const w = scratchCanvas.width;
             const h = scratchCanvas.height;
+            const baseSize = Math.min(w, h);
 
             // 银光闪闪刮层
             ctxScratch.clearRect(0, 0, w, h);
@@ -734,16 +735,25 @@
                 ctxScratch.stroke();
             }
 
-            // 提示文字 (刮开指引)
+            // 标题与提示文字 (刮开指引)
             ctxScratch.save();
             ctxScratch.shadowBlur = 10;
             ctxScratch.shadowColor = '#333';
-            ctxScratch.font = 'bold 22px "Segoe UI", "楷体", cursive';
             ctxScratch.fillStyle = '#3d2b2b';
+            ctxScratch.textAlign = 'center';
+
+            // 顶部标题：乖乖宝宝版刮刮乐（手机端略小）
+            const topTitleFontSize = baseSize < 420 ? 22 : 26;
+            ctxScratch.globalAlpha = 0.65;
+            ctxScratch.font = `bold ${topTitleFontSize}px "Segoe UI", "楷体", cursive`;
+            ctxScratch.fillText('乖乖宝宝版刮刮乐噢~~', w / 2, h * 0.18);
+
+            // 中间提示文字
             ctxScratch.globalAlpha = 0.5;
-            ctxScratch.fillText('轻轻刮开', w/2-80, h/2-30);
+            ctxScratch.font = 'bold 22px "Segoe UI", "楷体", cursive';
+            ctxScratch.fillText('轻轻刮开', w / 2, h / 2 - 30);
             ctxScratch.font = 'bold 26px "Segoe UI", "楷体", cursive';
-            ctxScratch.fillText('❤️ 惊喜 ❤️', w/2-85, h/2+30);
+            ctxScratch.fillText('❤️ 惊喜 ❤️', w / 2, h / 2 + 30);
             ctxScratch.restore();
 
             // 重置绘制状态

@@ -144,25 +144,32 @@
             align-self: stretch;
             min-height: 0;
             flex-direction: column;
+            position: relative;
         }
 
         .record-title-row {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             margin-bottom: 8px;
             gap: 8px;
+            position: relative;
+        }
+        .record-panel.has-many .record-title-row {
+            margin-bottom: 8px;
         }
 
         .record-title {
             font-size: 1.05rem;
             font-weight: 700;
             color: #b1444f;
-            text-align: left;
+            text-align: center;
         }
 
         .record-toggle {
             display: none;
+            position: absolute;
+            right: 0;
             background: #ffd2d5;
             border: 1px solid #ff9aa8;
             border-radius: 999px;
@@ -181,12 +188,39 @@
             max-height: 100%;
             overflow-y: auto;
             padding-right: 4px;
-            transition: max-height 0.25s ease;
+            flex: 1;
+            min-height: 0;
         }
 
-        .record-list.collapsed {
-            max-height: 200px;
-            overflow-y: hidden;
+        .record-fold-row {
+            font-size: 0.85rem;
+            color: #a06060;
+            background: #fff0f2;
+            border-radius: 18px;
+            padding: 6px 10px;
+            margin-bottom: 6px;
+            border: 1px solid #ffd2d5;
+        }
+
+        .record-dropdown {
+            display: none;
+            position: absolute;
+            left: 0;
+            right: 0;
+            margin: 0 -2px;
+            max-height: min(45vh, 260px);
+            overflow-y: auto;
+            z-index: 20;
+            background: #ffeef0;
+            border: 2px solid #ffc7cf;
+            border-top: none;
+            border-radius: 0 0 28px 28px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+            padding: 0 12px 8px 8px;
+        }
+        /* 仅当超过 5 条且点击「展开」时才显示下拉框，避免遮挡历史记录 */
+        .record-panel.has-many.dropdown-open .record-dropdown {
+            display: block;
         }
 
         .record-item {
@@ -275,9 +309,6 @@
                 padding: 10px 10px;
             }
 
-            .record-list.collapsed {
-                max-height: 200px;
-            }
 
             .record-title {
                 font-size: 0.98rem;
@@ -912,6 +943,7 @@
                 <button type="button" class="record-toggle" id="recordToggle" aria-label="展开或收起记录">展开</button>
             </div>
             <div class="record-list" id="recordList"></div>
+            <div class="record-dropdown" id="recordDropdown"></div>
         </div>
     </div>
     <div class="copyright">Copyright © [2026] [刘昭昭有限公司]. All Rights Reserved.</div>
@@ -1018,6 +1050,7 @@
         var records = [];
         const recordPanel = document.getElementById('recordPanel');
         const recordList = document.getElementById('recordList');
+        const recordDropdown = document.getElementById('recordDropdown');
         let recordCount = 0;
 
         function saveRecordsToStorage() {
@@ -1025,6 +1058,74 @@
                 localStorage.setItem(SCRATCH_RECORDS_KEY, JSON.stringify(records));
             } catch (e) {}
         }
+
+        function createRecordItemEl(r, index) {
+            var item = document.createElement('div');
+            item.className = 'record-item';
+            var content = document.createElement('div');
+            content.className = 'record-item-content';
+            var indexSpan = document.createElement('span');
+            indexSpan.className = 'record-index';
+            indexSpan.textContent = String(index);
+            var textSpan = document.createElement('span');
+            textSpan.textContent = r.text || '';
+            content.appendChild(indexSpan);
+            content.appendChild(textSpan);
+            var timeSpan = document.createElement('div');
+            timeSpan.className = 'record-time';
+            timeSpan.textContent = (r.location ? r.location + ' · ' : '') + (r.time || '');
+            item.appendChild(content);
+            item.appendChild(timeSpan);
+            return item;
+        }
+
+        function renderRecordPanelList(forceFold) {
+            if (!recordList || !recordPanel) return;
+            recordCount = records.length;
+            if (records.length === 0) {
+                recordList.innerHTML = '';
+                if (recordDropdown) recordDropdown.innerHTML = '';
+                recordPanel.style.display = 'none';
+                recordPanel.classList.remove('has-many');
+                recordPanel.classList.remove('dropdown-open');
+                return;
+            }
+            recordPanel.style.display = 'flex';
+            var needFold = forceFold || records.length > 5;
+            if (needFold) {
+                recordPanel.classList.add('has-many');
+                recordList.innerHTML = '';
+                var foldRow = document.createElement('div');
+                foldRow.className = 'record-fold-row';
+                foldRow.textContent = '共 ' + records.length + ' 条，点击上方「展开」查看全部';
+                recordList.appendChild(foldRow);
+                var start = Math.max(0, records.length - 5);
+                for (var i = start; i < records.length; i++) {
+                    recordList.appendChild(createRecordItemEl(records[i], i + 1));
+                }
+                if (recordDropdown) {
+                    recordDropdown.innerHTML = '';
+                    for (var j = 0; j < records.length; j++) {
+                        recordDropdown.appendChild(createRecordItemEl(records[j], j + 1));
+                    }
+                }
+            } else {
+                recordPanel.classList.remove('has-many');
+                recordPanel.classList.remove('dropdown-open');
+                recordList.innerHTML = '';
+                for (var k = 0; k < records.length; k++) {
+                    recordList.appendChild(createRecordItemEl(records[k], k + 1));
+                }
+                if (recordDropdown) recordDropdown.innerHTML = '';
+            }
+            if (document.getElementById('recordToggle')) {
+                document.getElementById('recordToggle').textContent = recordPanel.classList.contains('dropdown-open') ? '收起' : '展开';
+            }
+            if (needFold && recordPanel.classList.contains('dropdown-open') && typeof updateRecordDropdownTop === 'function') {
+                requestAnimationFrame(updateRecordDropdownTop);
+            }
+        }
+
         function loadRecordsFromStorage() {
             try {
                 var raw = localStorage.getItem(SCRATCH_RECORDS_KEY);
@@ -1033,36 +1134,13 @@
             } catch (e) {
                 records = [];
             }
-            recordList.innerHTML = '';
-            recordCount = 0;
-            for (var i = 0; i < records.length; i++) {
-                var r = records[i];
-                var item = document.createElement('div');
-                item.className = 'record-item';
-                var content = document.createElement('div');
-                content.className = 'record-item-content';
-                var indexSpan = document.createElement('span');
-                indexSpan.className = 'record-index';
-                indexSpan.textContent = String(i + 1);
-                var textSpan = document.createElement('span');
-                textSpan.textContent = r.text || '';
-                content.appendChild(indexSpan);
-                content.appendChild(textSpan);
-                var timeSpan = document.createElement('div');
-                timeSpan.className = 'record-time';
-                timeSpan.textContent = (r.location ? r.location + ' · ' : '') + (r.time || '');
-                item.appendChild(content);
-                item.appendChild(timeSpan);
-                recordList.appendChild(item);
-                recordCount++;
-            }
-            if (recordCount > 0) {
-                recordPanel.style.display = 'flex';
-                if (recordCount > 5) {
-                    recordPanel.classList.add('has-many');
-                    recordList.classList.add('collapsed');
-                    if (document.getElementById('recordToggle')) document.getElementById('recordToggle').textContent = '展开';
-                }
+            renderRecordPanelList();
+            if (records.length <= 5 && records.length >= 2 && recordList) {
+                requestAnimationFrame(function() {
+                    if (recordList.scrollHeight > recordList.clientHeight) {
+                        renderRecordPanelList(true);
+                    }
+                });
             }
         }
 
@@ -1355,34 +1433,13 @@
 
         function addRecordItem(text) {
             if (!recordPanel || !recordList || !text) return;
-            recordPanel.style.display = 'flex';
 
             var recordTime = formatRecordTime();
             records.push({ text: text, time: recordTime, location: cachedLocation || '' });
             if (records.length > MAX_RECORDS) records = records.slice(-MAX_RECORDS);
             var recordIndex = records.length - 1;
             saveRecordsToStorage();
-
-            const item = document.createElement('div');
-            item.className = 'record-item';
-
-            const content = document.createElement('div');
-            content.className = 'record-item-content';
-            const indexSpan = document.createElement('span');
-            indexSpan.className = 'record-index';
-            indexSpan.textContent = String(++recordCount);
-            const textSpan = document.createElement('span');
-            textSpan.textContent = text;
-            content.appendChild(indexSpan);
-            content.appendChild(textSpan);
-
-            const timeSpan = document.createElement('div');
-            timeSpan.className = 'record-time';
-            timeSpan.textContent = cachedLocation ? (cachedLocation + ' · ' + recordTime) : recordTime;
-
-            item.appendChild(content);
-            item.appendChild(timeSpan);
-            recordList.appendChild(item);
+            renderRecordPanelList();
 
             if (!cachedLocation) {
                 fetchLocation(function() {
@@ -1390,15 +1447,16 @@
                     if (recordIndex < records.length && !records[recordIndex].location) {
                         records[recordIndex].location = loc;
                         saveRecordsToStorage();
+                        renderRecordPanelList();
                     }
-                    timeSpan.textContent = loc ? (loc + ' · ' + recordTime) : recordTime;
                 });
             }
-
-            if (recordCount > 5) {
-                recordPanel.classList.add('has-many');
-                recordList.classList.add('collapsed');
-                document.getElementById('recordToggle').textContent = '展开';
+            if (records.length <= 5 && records.length >= 2) {
+                requestAnimationFrame(function() {
+                    if (recordList && recordList.scrollHeight > recordList.clientHeight) {
+                        renderRecordPanelList(true);
+                    }
+                });
             }
             recordList.scrollTop = recordList.scrollHeight;
         }
@@ -2081,12 +2139,24 @@
             });
         }
 
-        // --- 历史记录展开/收起（超过 10 条时）---
+        function updateRecordDropdownTop() {
+            if (!recordDropdown || !recordPanel || !recordPanel.classList.contains('dropdown-open')) return;
+            var list = document.getElementById('recordList');
+            var foldRow = list ? list.querySelector('.record-fold-row') : null;
+            var top = list ? list.offsetTop + (foldRow ? foldRow.offsetHeight : 0) : 0;
+            recordDropdown.style.top = top + 'px';
+        }
+
+        // --- 历史记录展开/收起（超过 5 条时，下拉框显示在「共 X 条…」下方）---
         const recordToggle = document.getElementById('recordToggle');
-        if (recordToggle && recordList) {
+        if (recordToggle && recordPanel) {
             recordToggle.addEventListener('click', function() {
-                recordList.classList.toggle('collapsed');
-                recordToggle.textContent = recordList.classList.contains('collapsed') ? '展开' : '收起';
+                if (!recordPanel.classList.contains('has-many')) return;
+                recordPanel.classList.toggle('dropdown-open');
+                recordToggle.textContent = recordPanel.classList.contains('dropdown-open') ? '收起' : '展开';
+                if (recordPanel.classList.contains('dropdown-open')) {
+                    requestAnimationFrame(updateRecordDropdownTop);
+                }
             });
         }
 
@@ -2113,11 +2183,11 @@
         function doClearRecordsAndResetToday() {
             records = [];
             saveRecordsToStorage();
-            recordList.innerHTML = '';
             recordCount = 0;
             recordPanel.classList.remove('has-many');
-            recordList.classList.remove('collapsed');
+            recordPanel.classList.remove('dropdown-open');
             if (recordToggle) recordToggle.textContent = '展开';
+            renderRecordPanelList();
             setTodayCount(0);
             updateTodayCountDisplay();
         }

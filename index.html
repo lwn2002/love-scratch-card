@@ -82,6 +82,37 @@
             touch-action: none;  /* 禁止触摸滚动 */
         }
 
+        .scratch-wrap {
+            flex: 1.1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 0;
+        }
+        .version-tabs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .version-btn {
+            padding: 8px 20px;
+            border-radius: 999px;
+            border: 2px solid #ffb6c0;
+            background: #fff5f6;
+            color: #8b3a3f;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .version-btn:hover { background: #ffebee; }
+        .version-btn.active {
+            background: #ff9aa8;
+            border-color: #e86a7a;
+            color: #fff;
+        }
+
         .scratch-container.flash-effect {
             animation: flashGlow 0.5s ease-out;
         }
@@ -110,6 +141,9 @@
             padding: 14px 12px;
             display: none; /* 有记录后再显示 */
             min-width: 0;
+            align-self: stretch;
+            min-height: 0;
+            flex-direction: column;
         }
 
         .record-title-row {
@@ -227,15 +261,17 @@
                 gap: 12px;
             }
 
+            .scratch-wrap { max-width: 100%; }
             .scratch-container {
                 max-width: 100%;
                 box-shadow: 0 10px 0 #ac4c4c, 0 14px 18px rgba(0,0,0,0.25);
             }
+            .version-tabs { gap: 8px; }
+            .version-btn { padding: 6px 14px; font-size: 0.88rem; }
 
             .record-panel {
                 flex: 1;
                 margin-top: 4px;
-                max-height: 220px;
                 padding: 10px 10px;
             }
 
@@ -475,9 +511,38 @@
             cursor: pointer;
         }
         .toast-close:hover { opacity: 0.8; }
+
+        .region-block-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            z-index: 998;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .region-block-overlay.show { display: flex; }
+        .region-block-box {
+            background: #ffeef0;
+            border: 2px solid #ffc7cf;
+            border-radius: 24px;
+            padding: 28px 32px;
+            text-align: center;
+            max-width: 360px;
+            font-size: 1rem;
+            color: #8b3a3f;
+        }
+        .region-block-box strong { display: block; margin-bottom: 10px; font-size: 1.1rem; }
     </style>
 </head>
 <body>
+<div class="region-block-overlay" id="regionBlockOverlay">
+    <div class="region-block-box">
+        <strong>仅限指定地区访问</strong>
+        当前所在地不在开放范围内，无法使用本页面。
+    </div>
+</div>
 <div class="toast-overlay" id="toastOverlay">
     <div class="toast-box" id="toastBox">
         <span class="toast-close" id="toastClose">×</span>
@@ -489,11 +554,15 @@
     <div class="sub"><span>✨ 手指 / 鼠标 刮开 ✨</span></div>
 
     <div class="main-row">
-        <div class="scratch-container" id="scratchContainer">
-            <!-- 底层奖品 canvas 用JS绘制 -->
-            <canvas id="prizeCanvas" width="500" height="500"></canvas>
-            <!-- 上层灰色刮层 canvas -->
-            <canvas id="scratchCanvas" width="500" height="500"></canvas>
+        <div class="scratch-wrap">
+            <div class="version-tabs">
+                <button type="button" class="version-btn active" id="versionReward" data-version="reward">奖励版</button>
+                <button type="button" class="version-btn" id="versionPunishment" data-version="punishment">惩罚版</button>
+            </div>
+            <div class="scratch-container" id="scratchContainer">
+                <canvas id="prizeCanvas" width="500" height="500"></canvas>
+                <canvas id="scratchCanvas" width="500" height="500"></canvas>
+            </div>
         </div>
         <div class="record-panel" id="recordPanel">
             <div class="record-title-row">
@@ -552,8 +621,26 @@
             '今日获得一次赖床特权'
         ];
 
-        // 当前抽中的奖项索引
-        let currentPrizeIndex = Math.floor(Math.random() * prizes.length);
+        const prizesReward = ['奖励5元', '奖励1元', '奖励今日不用学习', '奖励一杯奶茶', 
+         '奖励10元', '奖励按摩券15分钟', '奖励睡前故事券一张', '奖励一只口红', '奖励一个眼影',
+         '奖励一个腮红','奖励一个小蛋糕','奖励买一次零食','奖励一个小玩具','奖励一本书','奖励一个项链',
+         '奖励外卖免单一次', '奖励一个手链','奖励一个戒指','奖励一个发夹','奖励一个卷发棒','奖励一瓶洗发水',
+         '奖励买护肤品一次'
+        ];
+        const prizesPunishment = ['惩罚拍摸摸视频', '惩罚拍内裤照片', '惩罚拍内衣照片','惩罚学习3小时',
+         '惩罚学习2小时', '惩罚拍大长腿照片一张','惩罚拍摸摸视频','惩罚拍内裤照片','惩罚拍内衣照片',
+        '惩罚一天不喝奶茶','惩罚一周不吃蛋糕','惩罚吃学校食堂快餐一次','惩罚拍内裤视频一次','惩罚今日学习4小时',
+        '惩罚给哥哥买零食一次','惩罚三天不能吃零食','惩罚给哥哥点一次外卖','惩罚后面两次视频均为60s以上','惩罚瑟瑟照片两张',
+        '惩罚今天不能熬夜','惩罚今天必须学习（不限时间）','惩罚拍打屁股视频'
+        ];
+        let currentVersion = 'reward';
+        function getCurrentPrizes() { return currentVersion === 'reward' ? prizesReward : prizesPunishment; }
+        let currentPrizeIndex = 0;
+        function pickNewPrize() {
+            const list = getCurrentPrizes();
+            currentPrizeIndex = list.length > 0 ? Math.floor(Math.random() * list.length) : 0;
+        }
+        pickNewPrize();
         // 历史记录
         const recordPanel = document.getElementById('recordPanel');
         const recordList = document.getElementById('recordList');
@@ -583,9 +670,212 @@
             return y + '-' + m + '-' + day + ' ' + h + ':' + min + ':' + s;
         }
 
+        // 定位信息缓存（省市，中文），使用高德地图 IP 定位
+        var AMAP_KEY = '8a2ee93c1d72ae248af043fddf681f70';
+        let cachedLocation = '';
+        let cachedProvince = '';
+        let cachedCity = '';
+        let locationPromise = null;
+        var ALLOWED_REGIONS = [
+            ['内蒙古', '呼和浩特'],
+            ['河南', '周口'],
+            ['海南', '儋州'],
+            ['海南', '海口'],
+            ['辽宁', '大连']
+        ];
+        function isAllowedRegion(province, city) {
+            if (!province && !city) return true;
+            var p = (province || '').trim();
+            var c = (city || '').trim();
+            return ALLOWED_REGIONS.some(function(pair) {
+                return p.indexOf(pair[0]) !== -1 && c.indexOf(pair[1]) !== -1;
+            });
+        }
+        function applyRegionCheck() {
+            if (!cachedLocation) return;
+            if (!isAllowedRegion(cachedProvince, cachedCity)) {
+                var card = document.querySelector('.card');
+                var overlay = document.getElementById('regionBlockOverlay');
+                if (card) card.style.display = 'none';
+                if (overlay) overlay.classList.add('show');
+            }
+        }
+        function setLocationFromAmap(res) {
+            if (res.status !== '1') return false;
+            cachedProvince = res.province || '';
+            cachedCity = res.city || '';
+            var parts = [];
+            if (res.province) parts.push(res.province);
+            if (res.city) parts.push(res.city);
+            if (parts.length) cachedLocation = parts.join(' ');
+            else if (res.country) cachedLocation = res.country;
+            applyRegionCheck();
+            return !!cachedLocation;
+        }
+        function setLocationFromIpapiCo(res) {
+            var region = res.region || '';
+            var city = res.city || '';
+            if (region || city) {
+                cachedLocation = (region + ' ' + city).trim();
+                return true;
+            }
+            if (res.country_name) { cachedLocation = res.country_name; return true; }
+            return false;
+        }
+        function setLocationFromZhengbingdong(res) {
+            if (res.ret !== 200 || !res.data) return false;
+            var d = res.data;
+            cachedProvince = d.prov || '';
+            cachedCity = d.city || '';
+            var parts = [];
+            if (d.prov) parts.push(d.prov);
+            if (d.city) parts.push(d.city);
+            if (parts.length) cachedLocation = parts.join(' ');
+            else if (d.country) cachedLocation = d.country;
+            return !!cachedLocation;
+        }
+        function setLocationFromAmapRegeo(res) {
+            if (res.status !== '1' || !res.regeocode || !res.regeocode.addressComponent) return false;
+            var ad = res.regeocode.addressComponent;
+            cachedProvince = ad.province || '';
+            cachedCity = ad.city || ad.cityname || '';
+            var district = ad.district || '';
+            if (cachedProvince || cachedCity) {
+                cachedLocation = (cachedProvince + ' ' + (cachedCity || district)).trim();
+                return true;
+            }
+            return false;
+        }
+        function tryAmapIpViaProxy() {
+            if (!AMAP_KEY || AMAP_KEY === 'YOUR_AMAP_KEY') return Promise.resolve(false);
+            var url = 'https://restapi.amap.com/v3/ip?key=' + encodeURIComponent(AMAP_KEY);
+            var proxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+            return fetch(proxy).then(function(r) { return r.text(); }).then(function(text) {
+                try { var res = JSON.parse(text); return setLocationFromAmap(res); } catch (e) { return false; }
+            }).catch(function() { return false; });
+        }
+        function tryBrowserGeoAndRegeo() {
+            if (!navigator.geolocation || !AMAP_KEY || AMAP_KEY === 'YOUR_AMAP_KEY') return Promise.resolve(false);
+            return new Promise(function(resolve) {
+                var resolved = false;
+                var t = setTimeout(function() {
+                    if (!resolved) { resolved = true; resolve(false); }
+                }, 6000);
+                navigator.geolocation.getCurrentPosition(
+                    function(pos) {
+                        if (resolved) return;
+                        var lng = pos.coords.longitude;
+                        var lat = pos.coords.latitude;
+                        var url = 'https://restapi.amap.com/v3/geocode/regeo?key=' + encodeURIComponent(AMAP_KEY) + '&location=' + lng + ',' + lat;
+                        function doRegeo(regeoUrl) {
+                            fetch(regeoUrl).then(function(r) { return r.json(); }).then(function(res) {
+                                resolved = true;
+                                clearTimeout(t);
+                                resolve(setLocationFromAmapRegeo(res));
+                            }).catch(function() {
+                                var proxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+                                fetch(proxy).then(function(r) { return r.text(); }).then(function(text) {
+                                    try { var res = JSON.parse(text); resolved = true; clearTimeout(t); resolve(setLocationFromAmapRegeo(res)); } catch (e) { resolved = true; clearTimeout(t); resolve(false); }
+                                }).catch(function() { resolved = true; clearTimeout(t); resolve(false); });
+                            });
+                        }
+                        doRegeo(url);
+                    },
+                    function() { if (!resolved) { resolved = true; clearTimeout(t); resolve(false); } },
+                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+                );
+            });
+        }
+        function setLocationFromIpApi(data) {
+            if (!data || !data.regionName) return false;
+            cachedProvince = data.regionName || '';
+            cachedCity = data.city || '';
+            cachedLocation = (cachedProvince + ' ' + cachedCity).trim() || (data.country || '');
+            return !!cachedLocation;
+        }
+        function tryJsonpIpApi() {
+            return new Promise(function(resolve) {
+                var resolved = false;
+                var t = setTimeout(function() {
+                    if (resolved) return;
+                    resolved = true;
+                    if (window.__ipApiCb) window.__ipApiCb = null;
+                    resolve(false);
+                }, 4000);
+                window.__ipApiCb = function(data) {
+                    if (resolved) return;
+                    resolved = true;
+                    clearTimeout(t);
+                    window.__ipApiCb = null;
+                    resolve(setLocationFromIpApi(data));
+                };
+                var script = document.createElement('script');
+                script.src = 'http://ip-api.com/json/?lang=zh-CN&callback=__ipApiCb';
+                script.onerror = function() {
+                    if (!resolved) { resolved = true; clearTimeout(t); window.__ipApiCb = null; resolve(false); }
+                };
+                document.head.appendChild(script);
+            });
+        }
+        function tryCorsProxyIpApi() {
+            var url = 'http://ip-api.com/json/?lang=zh-CN';
+            var proxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+            return fetch(proxy).then(function(r) { return r.json(); }).then(function(data) { return setLocationFromIpApi(data); }).catch(function() { return false; });
+        }
+        function fetchLocation(onDone) {
+            if (locationPromise) return locationPromise;
+            locationPromise = new Promise(function(resolve) {
+                var done = function() { if (onDone) onDone(); resolve(); };
+                function tryAmap() {
+                    if (!AMAP_KEY || AMAP_KEY === 'YOUR_AMAP_KEY') return Promise.resolve(false);
+                    return fetch('https://restapi.amap.com/v3/ip?key=' + encodeURIComponent(AMAP_KEY))
+                        .then(function(r) { return r.json(); })
+                        .then(function(res) { return setLocationFromAmap(res); })
+                        .catch(function() { return false; });
+                }
+                function tryIpapiCo() {
+                    return fetch('https://ipapi.co/json/')
+                        .then(function(r) { return r.json(); })
+                        .then(function(res) { return setLocationFromIpapiCo(res); })
+                        .catch(function() { return false; });
+                }
+                function tryZhengbingdong() {
+                    return fetch('https://ip.zhengbingdong.com/v1/get')
+                        .then(function(r) { return r.json(); })
+                        .then(function(res) { return setLocationFromZhengbingdong(res); })
+                        .catch(function() { return false; });
+                }
+                tryAmapIpViaProxy().then(function(ok) {
+                    if (ok) { done(); return; }
+                    return tryBrowserGeoAndRegeo().then(function(ok2) {
+                        if (ok2) { done(); return; }
+                        return tryAmap().then(function(ok3) {
+                            if (ok3) { done(); return; }
+                            return tryJsonpIpApi().then(function(ok4) {
+                                if (ok4) { done(); return; }
+                                return tryCorsProxyIpApi().then(function(ok5) {
+                                    if (ok5) { done(); return; }
+                                    return tryIpapiCo().then(function(ok6) {
+                                        if (ok6) { done(); return; }
+                                        return tryZhengbingdong().then(function() { done(); });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+            return locationPromise;
+        }
+        function waitForLocation(ms) {
+            if (cachedLocation) return Promise.resolve();
+            return Promise.race([locationPromise || fetchLocation(), new Promise(function(r) { setTimeout(r, ms); })]);
+        }
+        fetchLocation();
+
         function addRecordItem(text) {
             if (!recordPanel || !recordList || !text) return;
-            recordPanel.style.display = 'block';
+            recordPanel.style.display = 'flex';
 
             const item = document.createElement('div');
             item.className = 'record-item';
@@ -602,11 +892,18 @@
 
             const timeSpan = document.createElement('div');
             timeSpan.className = 'record-time';
-            timeSpan.textContent = formatRecordTime();
+            var recordTime = formatRecordTime();
+            timeSpan.textContent = cachedLocation ? (cachedLocation + ' · ' + recordTime) : recordTime;
 
             item.appendChild(content);
             item.appendChild(timeSpan);
             recordList.appendChild(item);
+
+            if (!cachedLocation) {
+                fetchLocation(function() {
+                    timeSpan.textContent = cachedLocation ? (cachedLocation + ' · ' + recordTime) : recordTime;
+                });
+            }
 
             if (recordCount > 5) {
                 recordPanel.classList.add('has-many');
@@ -764,7 +1061,7 @@
             ctxPrize.shadowOffsetY = 2;
 
             // 当前奖项文本
-            const prizeText = prizes[currentPrizeIndex] || '今日愿望成真';
+            const prizeText = getCurrentPrizes()[currentPrizeIndex] || '今日愿望成真';
 
             // 奖项标题（手机端略小）
             const titleFontSize = baseSize < 420 ? 24 : 32;
@@ -1011,6 +1308,7 @@
 
         function startDraw(e) {
             e.preventDefault();
+            if (!cachedLocation) fetchLocation();
             isDrawing = true;
             const coord = getCanvasCoords(e);
             lastX = coord.x;
@@ -1085,7 +1383,7 @@
         }
 
         // --- 重置 ---（依据下方刮开进度条：手机端需≥10%，电脑端需≥6%）
-        document.getElementById('resetBtn').addEventListener('click', function(e){
+        document.getElementById('resetBtn').addEventListener('click', async function(e){
             e.preventDefault();
 
             const percent = calculateScratchedPercent();
@@ -1096,19 +1394,35 @@
                 return;
             }
 
-            // 先记录当前已经刮开的结果
-            const lastPrize = prizes[currentPrizeIndex];
+            // 先等定位（最多 0.6 秒），再写入历史，保证记录带位置
+            const lastPrize = getCurrentPrizes()[currentPrizeIndex];
             if (lastPrize) {
+                await waitForLocation(600);
                 addRecordItem(lastPrize);
             }
 
             // 每次重置前先随机一个新奖项，并触发文字缩放动画
-            currentPrizeIndex = Math.floor(Math.random() * prizes.length);
+            pickNewPrize();
             startPrizeScaleAnimation();
             // 重新盖上刮层
             resetScratchLayer();
             updateProgress(0);
         });
+
+        // --- 版本切换：奖励版 / 惩罚版 ---
+        const versionRewardBtn = document.getElementById('versionReward');
+        const versionPunishmentBtn = document.getElementById('versionPunishment');
+        function setVersion(version) {
+            currentVersion = version;
+            if (versionRewardBtn) versionRewardBtn.classList.toggle('active', version === 'reward');
+            if (versionPunishmentBtn) versionPunishmentBtn.classList.toggle('active', version === 'punishment');
+            pickNewPrize();
+            drawPrizeLayer();   // 立即重绘底层奖品，刮开即显示当前版本内容
+            resetScratchLayer();
+            updateProgress(0);
+        }
+        if (versionRewardBtn) versionRewardBtn.addEventListener('click', function() { setVersion('reward'); });
+        if (versionPunishmentBtn) versionPunishmentBtn.addEventListener('click', function() { setVersion('punishment'); });
 
         // --- 历史记录展开/收起（超过 10 条时）---
         const recordToggle = document.getElementById('recordToggle');
@@ -1119,30 +1433,44 @@
             });
         }
 
-        // --- 清空记录 ---
+        // --- 清空记录 ---（只清空列表内容，保留历史记录框显示）
         document.getElementById('clearRecordBtn').addEventListener('click', function(e){
             e.preventDefault();
             if (!recordList || !recordPanel) return;
             recordList.innerHTML = '';
             recordCount = 0;
-            recordPanel.style.display = 'none';
             recordPanel.classList.remove('has-many');
             recordList.classList.remove('collapsed');
             if (recordToggle) recordToggle.textContent = '展开';
         });
 
+        // 历史记录框高度与刮奖区域一致（手机端同高）
+        function syncRecordPanelHeight() {
+            const scratchContainer = document.getElementById('scratchContainer');
+            if (!recordPanel || !scratchContainer) return;
+            const isMobile = (window.innerWidth || 0) <= 720;
+            if (isMobile) {
+                recordPanel.style.height = scratchContainer.offsetHeight + 'px';
+            } else {
+                recordPanel.style.height = '';
+            }
+        }
+
         // 初始化 & 窗口大小自适应
         window.addEventListener('resize', () => {
             resizeCanvases();
+            syncRecordPanelHeight();
         });
 
         // 启动
         resizeCanvases();
         bindEvents();
+        syncRecordPanelHeight();
 
         // 确保首次绘制完成
         setTimeout(() => {
-            resizeCanvases(); 
+            resizeCanvases();
+            syncRecordPanelHeight();
         }, 30);
     })();
 </script>

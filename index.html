@@ -482,7 +482,7 @@
             position: fixed;
             inset: 0;
             background: rgba(0,0,0,0.3);
-            z-index: 1001;
+            z-index: 1010;
             justify-content: center;
             align-items: center;
             padding: 20px;
@@ -516,6 +516,53 @@
             cursor: pointer;
         }
         .toast-close:hover { opacity: 0.8; }
+
+        .clear-record-pwd-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 1005;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .clear-record-pwd-overlay.show { display: flex; }
+        .clear-record-pwd-btns {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 12px;
+        }
+        .clear-record-pwd-btns button { padding: 10px 24px; border-radius: 999px; font-size: 0.95rem; font-weight: 600; cursor: pointer; border: 2px solid; }
+        .location-request-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.3);
+            z-index: 1010;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .location-request-overlay.show { display: flex; }
+        .location-request-box {
+            position: relative;
+            background: #ffeef0;
+            border: 2px solid #ffc7cf;
+            border-radius: 24px;
+            padding: 20px 24px;
+            box-shadow: inset 0 2px 6px rgba(255, 190, 200, 0.8);
+            max-width: 340px;
+            text-align: center;
+            font-size: 0.95rem;
+            color: #8b3a3f;
+        }
+        .location-request-box p { margin-bottom: 16px; line-height: 1.5; }
+        .location-request-btns { display: flex; gap: 12px; justify-content: center; }
+        .location-request-btns button { padding: 10px 24px; border-radius: 999px; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+        .location-request-ok { background: #ff9aa8; color: #fff; border: 2px solid #e86a7a; }
+        .location-request-skip { background: #fff5f6; color: #8b3a3f; border: 2px solid #ffb6c0; }
 
         .region-block-overlay {
             display: none;
@@ -586,6 +633,183 @@
             border-color: #ff9aa8;
             box-shadow: 0 0 0 3px rgba(255, 154, 168, 0.3);
         }
+        .version-btn-admin { background: #ffefef; color: #8b3a3f; }
+        .version-btn-admin:hover { background: #ffe0e0; }
+        .admin-pwd-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 1002;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .admin-pwd-overlay.show { display: flex; }
+        .admin-panel-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 1003;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .admin-panel-overlay.show { display: flex; }
+        .admin-panel-box {
+            position: relative;
+            background: #ffeef0;
+            border: 2px solid #ffc7cf;
+            border-radius: 24px;
+            padding: 20px;
+            padding-top: 28px;
+            box-shadow: inset 0 2px 6px rgba(255, 190, 200, 0.8);
+            max-width: 400px;
+            width: 100%;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .admin-panel-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #b1444f;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        .admin-panel-tabs {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 6px;
+        }
+        .admin-panel-counts {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #a07070;
+            margin-bottom: 10px;
+        }
+        .admin-panel-list-wrap {
+            flex: 1;
+            min-height: 180px;
+            max-height: 280px;
+            overflow-y: auto;
+            background: #fff8f8;
+            border: 1px solid #ffd2d5;
+            border-radius: 16px;
+            padding: 8px;
+            margin-bottom: 12px;
+        }
+        .admin-panel-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .admin-panel-list li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #ffd2d5;
+            font-size: 0.9rem;
+            color: #8b3a3f;
+        }
+        .admin-panel-list li .admin-item-del {
+            flex-shrink: 0;
+            padding: 2px 10px;
+            font-size: 0.8rem;
+            color: #b1444f;
+            background: #ffebee;
+            border: 1px solid #ff9aa8;
+            border-radius: 999px;
+            cursor: pointer;
+        }
+        .admin-panel-add {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .admin-panel-input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 2px solid #ffb6c0;
+            border-radius: 12px;
+            background: #fff8f8;
+            font-size: 0.9rem;
+            color: #8b3a3f;
+        }
+        .admin-panel-add-btn {
+            padding: 10px 16px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #811e1e;
+            background: #ffc9c9;
+            border: 2px solid #ff8686;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+        .admin-panel-confirm {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #811e1e;
+            background: #ffc9c9;
+            border: 2px solid #ff8686;
+            border-radius: 40px;
+            cursor: pointer;
+        }
+        .admin-panel-close {
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            color: #8b3a3f;
+            font-size: 1.6rem;
+            font-weight: 700;
+            line-height: 1;
+            cursor: pointer;
+            z-index: 1;
+        }
+        .admin-panel-close:hover { opacity: 0.8; }
+        .admin-close-confirm-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 1004;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .admin-close-confirm-overlay.show { display: flex; }
+        .admin-close-confirm-box {
+            background: #ffeef0;
+            border: 2px solid #ffc7cf;
+            border-radius: 20px;
+            padding: 20px 24px;
+            max-width: 320px;
+            text-align: center;
+        }
+        .admin-close-confirm-box p { margin-bottom: 14px; font-size: 0.95rem; color: #8b3a3f; }
+        .admin-close-confirm-btns { display: flex; gap: 12px; justify-content: center; }
+        .admin-close-confirm-btns button { padding: 8px 20px; border-radius: 999px; cursor: pointer; font-size: 0.9rem; font-weight: 600; }
+        .admin-close-confirm-yes { background: #ff9aa8; color: #fff; border: 2px solid #e86a7a; }
+        .admin-close-confirm-no { background: #fff5f6; color: #8b3a3f; border: 2px solid #ffb6c0; }
+        .admin-panel-limit-row { margin-bottom: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .admin-panel-limit-row label { font-size: 0.9rem; color: #8b3a3f; }
+        .admin-panel-limit-input { width: 64px; padding: 6px 8px; border: 2px solid #ffb6c0; border-radius: 8px; text-align: center; font-size: 0.9rem; }
+        .admin-panel-limit-hint { font-size: 0.8rem; color: #a07070; }
+        .today-count-display { font-size: 0.9rem; color: #8b3a3f; font-weight: 600; }
+        .scratch-confetti-wrap { position: absolute; inset: 0; pointer-events: none; z-index: 15; overflow: hidden; }
+        .scratch-confetti-piece { position: absolute; width: 8px; height: 8px; border-radius: 50%; animation: confettiFall 1.4s ease-out forwards; }
+        @keyframes confettiFall {
+            0% { transform: translateY(-10px) scale(1); opacity: 1; }
+            100% { transform: translateY(120%) scale(0.3); opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -593,6 +817,64 @@
     <div class="password-gate-box">
         <div class="password-gate-title">请输入四位数字密码</div>
         <input type="text" class="password-gate-input" id="passwordGateInput" placeholder="****" maxlength="4" inputmode="numeric" pattern="[0-9]*" autocomplete="off" />
+    </div>
+</div>
+<div class="admin-pwd-overlay" id="adminPwdOverlay">
+    <div class="password-gate-box">
+        <div class="password-gate-title">管理者密码</div>
+        <input type="text" class="password-gate-input" id="adminPwdInput" placeholder="****" maxlength="4" inputmode="numeric" autocomplete="off" />
+    </div>
+</div>
+<div class="admin-close-confirm-overlay" id="adminCloseConfirmOverlay">
+    <div class="admin-close-confirm-box">
+        <p>有未保存修改，是否关闭？</p>
+        <div class="admin-close-confirm-btns">
+            <button type="button" class="admin-close-confirm-yes" id="adminCloseConfirmYes">是</button>
+            <button type="button" class="admin-close-confirm-no" id="adminCloseConfirmNo">否</button>
+        </div>
+    </div>
+</div>
+<div class="admin-panel-overlay" id="adminPanelOverlay">
+    <div class="admin-panel-box">
+        <span class="admin-panel-close" id="adminPanelClose" aria-label="关闭">×</span>
+        <div class="admin-panel-title">管理者模式</div>
+        <div class="admin-panel-tabs">
+            <button type="button" class="version-btn active" data-admin-tab="reward">奖励版</button>
+            <button type="button" class="version-btn" data-admin-tab="punishment">惩罚版</button>
+        </div>
+        <div class="admin-panel-counts" id="adminPanelCounts">奖励版 共 0 条 · 惩罚版 共 0 条</div>
+        <div class="admin-panel-list-wrap">
+            <ul class="admin-panel-list" id="adminPanelList"></ul>
+        </div>
+        <div class="admin-panel-limit-row">
+            <label>今日可刮上限：</label>
+            <input type="number" class="admin-panel-limit-input" id="adminPanelLimitInput" min="0" value="0" />
+            <span class="admin-panel-limit-hint">（0 表示不限）</span>
+        </div>
+        <div class="admin-panel-add">
+            <input type="text" class="admin-panel-input" id="adminPanelInput" placeholder="新增一条内容" />
+            <button type="button" class="admin-panel-add-btn" id="adminPanelAddBtn">新增</button>
+        </div>
+        <button type="button" class="admin-panel-confirm" id="adminPanelConfirm">确认</button>
+    </div>
+</div>
+<div class="clear-record-pwd-overlay" id="clearRecordPwdOverlay">
+    <div class="password-gate-box">
+        <div class="password-gate-title">请输入管理者密码以清空记录</div>
+        <input type="text" class="password-gate-input" id="clearRecordPwdInput" placeholder="****" maxlength="4" inputmode="numeric" autocomplete="off" />
+        <div class="clear-record-pwd-btns">
+            <button type="button" class="location-request-ok" id="clearRecordPwdOk">确定</button>
+            <button type="button" class="location-request-skip" id="clearRecordPwdCancel">取消</button>
+        </div>
+    </div>
+</div>
+<div class="location-request-overlay" id="locationRequestOverlay">
+    <div class="location-request-box">
+        <p>为记录刮奖位置，将使用网络定位获取您的大致位置。<br />点击「确定」即同意。</p>
+        <div class="location-request-btns">
+            <button type="button" class="location-request-ok" id="locationRequestOk">确定</button>
+            <button type="button" class="location-request-skip" id="locationRequestSkip">暂不</button>
+        </div>
     </div>
 </div>
 <div class="region-block-overlay" id="regionBlockOverlay">
@@ -616,10 +898,12 @@
             <div class="version-tabs">
                 <button type="button" class="version-btn active" id="versionReward" data-version="reward">奖励版</button>
                 <button type="button" class="version-btn" id="versionPunishment" data-version="punishment">惩罚版</button>
+                <button type="button" class="version-btn version-btn-admin" id="versionAdmin">管理者</button>
             </div>
             <div class="scratch-container" id="scratchContainer">
                 <canvas id="prizeCanvas" width="500" height="500"></canvas>
                 <canvas id="scratchCanvas" width="500" height="500"></canvas>
+                <div class="scratch-confetti-wrap" id="scratchConfettiWrap"></div>
             </div>
         </div>
         <div class="record-panel" id="recordPanel">
@@ -641,6 +925,7 @@
     </div>
 
     <div class="hint">
+        <span class="today-count-display" id="todayCountDisplay">今日已刮 0 次</span>
         <span>💎 再刮一点惊喜就出现</span>
         <div class="btn-group">
             <button class="reset-btn" id="resetBtn">⟳ 重新刮</button>
@@ -662,19 +947,63 @@
         const ctxScratch = scratchCanvas.getContext('2d', { willReadFrequently: true });
         const ctxPrize = prizeCanvas.getContext('2d');
 
-        // 奖项列表（可继续自行增加）
-        const prizesReward = ['奖励5元', '奖励1元', '奖励今日不用学习', '奖励一杯奶茶', 
+        // 奖项列表（可从管理者修改，持久化到 localStorage）
+        var PRIZES_REWARD_KEY = 'scratchPrizesReward';
+        var PRIZES_PUNISHMENT_KEY = 'scratchPrizesPunishment';
+        var defaultReward = ['奖励5元', '奖励1元', '奖励今日不用学习', '奖励一杯奶茶',
          '奖励10元', '奖励按摩券15分钟', '奖励睡前故事券一张', '奖励一只口红', '奖励一个眼影',
          '奖励一个腮红','奖励一个小蛋糕','奖励买一次零食','奖励一个小玩具','奖励一本书','奖励一个项链',
          '奖励外卖免单一次', '奖励一个手链','奖励一个戒指','奖励一个发夹','奖励一个卷发棒','奖励一瓶洗发水',
          '奖励买护肤品一次'
         ];
-        const prizesPunishment = ['惩罚拍摸摸视频', '惩罚拍内裤照片', '惩罚拍内衣照片','惩罚学习3小时',
+        var defaultPunishment = ['惩罚拍摸摸视频', '惩罚拍内裤照片', '惩罚拍内衣照片','惩罚学习3小时',
          '惩罚学习2小时', '惩罚拍大长腿照片一张','惩罚拍摸摸视频','惩罚拍内裤照片','惩罚拍内衣照片',
         '惩罚一天不喝奶茶','惩罚一周不吃蛋糕','惩罚吃学校食堂快餐一次','惩罚拍内裤视频一次','惩罚今日学习4小时',
         '惩罚给哥哥买零食一次','惩罚三天不能吃零食','惩罚给哥哥点一次外卖','惩罚后面两次视频均为60s以上','惩罚瑟瑟照片两张',
         '惩罚今天不能熬夜','惩罚今天必须学习（不限时间）','惩罚拍打屁股视频'
         ];
+        var prizesReward = defaultReward.slice();
+        var prizesPunishment = defaultPunishment.slice();
+        (function loadPrizesFromStorage() {
+            try {
+                var r = localStorage.getItem(PRIZES_REWARD_KEY);
+                var p = localStorage.getItem(PRIZES_PUNISHMENT_KEY);
+                if (r) { var a = JSON.parse(r); if (Array.isArray(a) && a.length) prizesReward = a; }
+                if (p) { var a = JSON.parse(p); if (Array.isArray(a) && a.length) prizesPunishment = a; }
+            } catch (e) {}
+        })();
+        var SCRATCH_DATE_KEY = 'scratchDate';
+        var SCRATCH_COUNT_KEY = 'scratchCount';
+        var SCRATCH_DAILY_LIMIT_KEY = 'scratchDailyLimit';
+        function getTodayDateString() {
+            var d = new Date();
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        }
+        function getTodayCount() {
+            try {
+                if (localStorage.getItem(SCRATCH_DATE_KEY) !== getTodayDateString()) return 0;
+                return parseInt(localStorage.getItem(SCRATCH_COUNT_KEY), 10) || 0;
+            } catch (e) { return 0; }
+        }
+        function getDailyLimit() {
+            try {
+                return Math.max(0, parseInt(localStorage.getItem(SCRATCH_DAILY_LIMIT_KEY), 10) || 0);
+            } catch (e) { return 0; }
+        }
+        function setTodayCount(n) {
+            try {
+                localStorage.setItem(SCRATCH_DATE_KEY, getTodayDateString());
+                localStorage.setItem(SCRATCH_COUNT_KEY, String(n));
+            } catch (e) {}
+        }
+        function incrementTodayCount() {
+            var c = getTodayCount();
+            setTodayCount(c + 1);
+        }
+        function updateTodayCountDisplay() {
+            var el = document.getElementById('todayCountDisplay');
+            if (el) el.textContent = '今日已刮 ' + getTodayCount() + ' 次';
+        }
         let currentVersion = 'reward';
         function getCurrentPrizes() { return currentVersion === 'reward' ? prizesReward : prizesPunishment; }
         let currentPrizeIndex = 0;
@@ -683,10 +1012,59 @@
             currentPrizeIndex = list.length > 0 ? Math.floor(Math.random() * list.length) : 0;
         }
         pickNewPrize();
-        // 历史记录
+        // 历史记录（持久化到 localStorage，重新进入页面会恢复）
+        var SCRATCH_RECORDS_KEY = 'scratchRecords';
+        var MAX_RECORDS = 100;
+        var records = [];
         const recordPanel = document.getElementById('recordPanel');
         const recordList = document.getElementById('recordList');
         let recordCount = 0;
+
+        function saveRecordsToStorage() {
+            try {
+                localStorage.setItem(SCRATCH_RECORDS_KEY, JSON.stringify(records));
+            } catch (e) {}
+        }
+        function loadRecordsFromStorage() {
+            try {
+                var raw = localStorage.getItem(SCRATCH_RECORDS_KEY);
+                records = raw ? JSON.parse(raw) : [];
+                if (!Array.isArray(records)) records = [];
+            } catch (e) {
+                records = [];
+            }
+            recordList.innerHTML = '';
+            recordCount = 0;
+            for (var i = 0; i < records.length; i++) {
+                var r = records[i];
+                var item = document.createElement('div');
+                item.className = 'record-item';
+                var content = document.createElement('div');
+                content.className = 'record-item-content';
+                var indexSpan = document.createElement('span');
+                indexSpan.className = 'record-index';
+                indexSpan.textContent = String(i + 1);
+                var textSpan = document.createElement('span');
+                textSpan.textContent = r.text || '';
+                content.appendChild(indexSpan);
+                content.appendChild(textSpan);
+                var timeSpan = document.createElement('div');
+                timeSpan.className = 'record-time';
+                timeSpan.textContent = (r.location ? r.location + ' · ' : '') + (r.time || '');
+                item.appendChild(content);
+                item.appendChild(timeSpan);
+                recordList.appendChild(item);
+                recordCount++;
+            }
+            if (recordCount > 0) {
+                recordPanel.style.display = 'flex';
+                if (recordCount > 5) {
+                    recordPanel.classList.add('has-many');
+                    recordList.classList.add('collapsed');
+                    if (document.getElementById('recordToggle')) document.getElementById('recordToggle').textContent = '展开';
+                }
+            }
+        }
 
         // 自动揭开的阈值与状态（手机端 70%，电脑端 50%）
         function getAutoRevealThreshold() {
@@ -742,6 +1120,15 @@
                 if (overlay) overlay.classList.add('show');
             }
         }
+        function normalizeLocationForDisplay() {
+            if (!cachedLocation && !cachedCity) return;
+            var loc = (cachedLocation || (cachedProvince + ' ' + cachedCity).trim()).toLowerCase();
+            if (/海南|hainan/.test(loc) && /yingzhou/.test(loc)) {
+                cachedProvince = cachedProvince ? cachedProvince.replace(/hainan/i, '海南') : '海南';
+                cachedCity = '儋州';
+                cachedLocation = (cachedProvince + ' ' + cachedCity).trim();
+            }
+        }
         function setLocationFromAmap(res) {
             if (res.status !== '1') return false;
             cachedProvince = res.province || '';
@@ -751,14 +1138,18 @@
             if (res.city) parts.push(res.city);
             if (parts.length) cachedLocation = parts.join(' ');
             else if (res.country) cachedLocation = res.country;
+            normalizeLocationForDisplay();
             applyRegionCheck();
             return !!cachedLocation;
         }
         function setLocationFromIpapiCo(res) {
             var region = res.region || '';
             var city = res.city || '';
+            cachedProvince = region;
+            cachedCity = city;
             if (region || city) {
                 cachedLocation = (region + ' ' + city).trim();
+                normalizeLocationForDisplay();
                 return true;
             }
             if (res.country_name) { cachedLocation = res.country_name; return true; }
@@ -774,6 +1165,7 @@
             if (d.city) parts.push(d.city);
             if (parts.length) cachedLocation = parts.join(' ');
             else if (d.country) cachedLocation = d.country;
+            normalizeLocationForDisplay();
             return !!cachedLocation;
         }
         function setLocationFromAmapRegeo(res) {
@@ -784,6 +1176,7 @@
             var district = ad.district || '';
             if (cachedProvince || cachedCity) {
                 cachedLocation = (cachedProvince + ' ' + (cachedCity || district)).trim();
+                normalizeLocationForDisplay();
                 return true;
             }
             return false;
@@ -795,6 +1188,24 @@
             return fetch(proxy).then(function(r) { return r.text(); }).then(function(text) {
                 try { var res = JSON.parse(text); return setLocationFromAmap(res); } catch (e) { return false; }
             }).catch(function() { return false; });
+        }
+        function showLocationRequestOverlay(alwaysShow) {
+            if (!alwaysShow && (!navigator.geolocation || !AMAP_KEY || AMAP_KEY === 'YOUR_AMAP_KEY')) return Promise.resolve(false);
+            var overlay = document.getElementById('locationRequestOverlay');
+            if (!overlay) return Promise.resolve(false);
+            return new Promise(function(resolve) {
+                overlay.classList.add('show');
+                var okBtn = document.getElementById('locationRequestOk');
+                var skipBtn = document.getElementById('locationRequestSkip');
+                function close(val) {
+                    overlay.classList.remove('show');
+                    if (okBtn) okBtn.onclick = null;
+                    if (skipBtn) skipBtn.onclick = null;
+                    resolve(val);
+                }
+                if (okBtn) okBtn.onclick = function() { close(true); };
+                if (skipBtn) skipBtn.onclick = function() { close(false); };
+            });
         }
         function tryBrowserGeoAndRegeo() {
             if (!navigator.geolocation || !AMAP_KEY || AMAP_KEY === 'YOUR_AMAP_KEY') return Promise.resolve(false);
@@ -833,6 +1244,7 @@
             cachedProvince = data.regionName || '';
             cachedCity = data.city || '';
             cachedLocation = (cachedProvince + ' ' + cachedCity).trim() || (data.country || '');
+            normalizeLocationForDisplay();
             return !!cachedLocation;
         }
         function tryJsonpIpApi() {
@@ -864,8 +1276,15 @@
             var proxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
             return fetch(proxy).then(function(r) { return r.json(); }).then(function(data) { return setLocationFromIpApi(data); }).catch(function() { return false; });
         }
-        function fetchLocation(onDone) {
-            if (locationPromise) return locationPromise;
+        function fetchLocation(onDone, useBrowserGeo) {
+            if (locationPromise) {
+                if (onDone) {
+                    if (cachedLocation) onDone();
+                    else locationPromise.then(function() { onDone(); });
+                }
+                return locationPromise;
+            }
+            var skipBrowserGeo = useBrowserGeo === false;
             locationPromise = new Promise(function(resolve) {
                 var done = function() { if (onDone) onDone(); resolve(); };
                 function tryAmap() {
@@ -887,9 +1306,25 @@
                         .then(function(res) { return setLocationFromZhengbingdong(res); })
                         .catch(function() { return false; });
                 }
-                tryAmapIpViaProxy().then(function(ok) {
-                    if (ok) { done(); return; }
-                    return tryBrowserGeoAndRegeo().then(function(ok2) {
+                function afterIpProxy(ok) {
+                    if (ok) { done(); return Promise.resolve(); }
+                    if (skipBrowserGeo) return tryAmap().then(function(ok3) {
+                        if (ok3) { done(); return; }
+                        return tryJsonpIpApi().then(function(ok4) {
+                            if (ok4) { done(); return; }
+                            return tryCorsProxyIpApi().then(function(ok5) {
+                                if (ok5) { done(); return; }
+                                return tryIpapiCo().then(function(ok6) {
+                                    if (ok6) { done(); return; }
+                                    return tryZhengbingdong().then(function() { done(); });
+                                });
+                            });
+                        });
+                    });
+                    return showLocationRequestOverlay(false).then(function(doGeo) {
+                        if (!doGeo) return Promise.resolve(false);
+                        return tryBrowserGeoAndRegeo();
+                    }).then(function(ok2) {
                         if (ok2) { done(); return; }
                         return tryAmap().then(function(ok3) {
                             if (ok3) { done(); return; }
@@ -905,7 +1340,8 @@
                             });
                         });
                     });
-                });
+                }
+                tryAmapIpViaProxy().then(afterIpProxy);
             });
             return locationPromise;
         }
@@ -913,11 +1349,19 @@
             if (cachedLocation) return Promise.resolve();
             return Promise.race([locationPromise || fetchLocation(), new Promise(function(r) { setTimeout(r, ms); })]);
         }
-        fetchLocation();
+        showLocationRequestOverlay(true).then(function() {
+            fetchLocation(null, false);
+        });
 
         function addRecordItem(text) {
             if (!recordPanel || !recordList || !text) return;
             recordPanel.style.display = 'flex';
+
+            var recordTime = formatRecordTime();
+            records.push({ text: text, time: recordTime, location: cachedLocation || '' });
+            if (records.length > MAX_RECORDS) records = records.slice(-MAX_RECORDS);
+            var recordIndex = records.length - 1;
+            saveRecordsToStorage();
 
             const item = document.createElement('div');
             item.className = 'record-item';
@@ -934,7 +1378,6 @@
 
             const timeSpan = document.createElement('div');
             timeSpan.className = 'record-time';
-            var recordTime = formatRecordTime();
             timeSpan.textContent = cachedLocation ? (cachedLocation + ' · ' + recordTime) : recordTime;
 
             item.appendChild(content);
@@ -943,7 +1386,12 @@
 
             if (!cachedLocation) {
                 fetchLocation(function() {
-                    timeSpan.textContent = cachedLocation ? (cachedLocation + ' · ' + recordTime) : recordTime;
+                    var loc = cachedLocation || '';
+                    if (recordIndex < records.length && !records[recordIndex].location) {
+                        records[recordIndex].location = loc;
+                        saveRecordsToStorage();
+                    }
+                    timeSpan.textContent = loc ? (loc + ' · ' + recordTime) : recordTime;
                 });
             }
 
@@ -974,12 +1422,28 @@
             const containerEl = document.getElementById('scratchContainer');
             if (containerEl) {
                 containerEl.classList.remove('flash-effect');
-                // 触发一次闪光动画
-                void containerEl.offsetWidth; // 强制回流，重置动画
+                void containerEl.offsetWidth;
                 containerEl.classList.add('flash-effect');
-                setTimeout(() => {
+                setTimeout(function() {
                     containerEl.classList.remove('flash-effect');
                 }, 600);
+            }
+
+            var confettiWrap = document.getElementById('scratchConfettiWrap');
+            if (confettiWrap) {
+                var colors = ['#ff6b6b','#ffa07a','#ffd93d','#6bcb77','#4d96ff','#ff9aa8','#c44569'];
+                for (var i = 0; i < 50; i++) {
+                    var p = document.createElement('div');
+                    p.className = 'scratch-confetti-piece';
+                    p.style.left = (Math.random() * 100) + '%';
+                    p.style.top = (Math.random() * 20) + '%';
+                    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    p.style.animationDelay = (Math.random() * 0.3) + 's';
+                    confettiWrap.appendChild(p);
+                }
+                setTimeout(function() {
+                    confettiWrap.innerHTML = '';
+                }, 1500);
             }
         }
 
@@ -1262,13 +1726,13 @@
             }
         }
 
-        // 检测正中间区域（中奖内容区）是否已刮开；手机端需刮开10%，电脑端6%
+        // 检测正中间区域（中奖内容区）是否已刮开；手机端10%，电脑端20%
         function isCenterScraped() {
             const w = scratchCanvas.width;
             const h = scratchCanvas.height;
             if (w === 0 || h === 0) return false;
             const isMobile = (window.innerWidth || document.documentElement.clientWidth || 0) <= 720;
-            const threshold = isMobile ? 0.10 : 0.06;
+            const threshold = isMobile ? 0.10 : 0.20;
             const x0 = Math.floor(w * 0.3);
             const y0 = Math.floor(h * 0.38);
             const rw = Math.floor(w * 0.4);
@@ -1424,15 +1888,22 @@
             scratchCanvas.addEventListener('touchcancel', stopDraw, { passive: false });
         }
 
-        // --- 重置 ---（依据下方刮开进度条：手机端需≥10%，电脑端需≥6%）
+        // --- 重置 ---（手机端需刮开10%，电脑端15%才能重新刮）
         document.getElementById('resetBtn').addEventListener('click', async function(e){
             e.preventDefault();
 
             const percent = calculateScratchedPercent();
             const isMobile = (window.innerWidth || document.documentElement.clientWidth || 0) <= 720;
-            const needPercent = isMobile ? 10 : 6;
+            const needPercent = isMobile ? 10 : 15;
             if (percent < needPercent) {
                 showToast('目前未刮奖或未刮全中奖内容');
+                return;
+            }
+
+            var limit = getDailyLimit();
+            var todayCount = getTodayCount();
+            if (limit > 0 && todayCount >= limit) {
+                showToast('今日刮奖次数已用完啦');
                 return;
             }
 
@@ -1442,6 +1913,9 @@
                 await waitForLocation(600);
                 addRecordItem(lastPrize);
             }
+
+            incrementTodayCount();
+            updateTodayCountDisplay();
 
             // 每次重置前先随机一个新奖项，并触发文字缩放动画
             pickNewPrize();
@@ -1466,6 +1940,147 @@
         if (versionRewardBtn) versionRewardBtn.addEventListener('click', function() { setVersion('reward'); });
         if (versionPunishmentBtn) versionPunishmentBtn.addEventListener('click', function() { setVersion('punishment'); });
 
+        // --- 管理者：密码 2002，进入后可编辑奖励/惩罚列表，确认后写入刮刮乐并持久化 ---
+        var ADMIN_PASSWORD = '2002';
+        var adminPwdOverlay = document.getElementById('adminPwdOverlay');
+        var adminPwdInput = document.getElementById('adminPwdInput');
+        var adminPanelOverlay = document.getElementById('adminPanelOverlay');
+        var adminPanelList = document.getElementById('adminPanelList');
+        var adminPanelInput = document.getElementById('adminPanelInput');
+        var adminPanelAddBtn = document.getElementById('adminPanelAddBtn');
+        var adminPanelConfirm = document.getElementById('adminPanelConfirm');
+        var adminTabBtns = document.querySelectorAll('[data-admin-tab]');
+        var adminEditingReward = [];
+        var adminEditingPunishment = [];
+        var adminCurrentTab = 'reward';
+        var adminInitialLimit = 0;
+
+        function updateAdminCounts() {
+            var el = document.getElementById('adminPanelCounts');
+            if (el) el.textContent = '奖励版 共 ' + adminEditingReward.length + ' 条 · 惩罚版 共 ' + adminEditingPunishment.length + ' 条';
+        }
+
+        function renderAdminList() {
+            var list = adminCurrentTab === 'reward' ? adminEditingReward : adminEditingPunishment;
+            adminPanelList.innerHTML = '';
+            list.forEach(function(text, i) {
+                var li = document.createElement('li');
+                li.innerHTML = '<span>' + (text || '').replace(/</g, '&lt;') + '</span><button type="button" class="admin-item-del">删除</button>';
+                li.querySelector('.admin-item-del').addEventListener('click', function() {
+                    list.splice(i, 1);
+                    updateAdminCounts();
+                    renderAdminList();
+                });
+                adminPanelList.appendChild(li);
+            });
+            updateAdminCounts();
+        }
+
+        function isAdminDirty() {
+            var listDirty = JSON.stringify(adminEditingReward) !== JSON.stringify(prizesReward) ||
+                JSON.stringify(adminEditingPunishment) !== JSON.stringify(prizesPunishment);
+            var limitInput = document.getElementById('adminPanelLimitInput');
+            var currentLimit = limitInput ? (Math.max(0, parseInt(limitInput.value, 10) || 0)) : 0;
+            var limitDirty = currentLimit !== adminInitialLimit;
+            return listDirty || limitDirty;
+        }
+        function closeAdminPanel() {
+            if (adminPanelOverlay) adminPanelOverlay.classList.remove('show');
+        }
+
+        function openAdminPanel() {
+            adminEditingReward = prizesReward.slice();
+            adminEditingPunishment = prizesPunishment.slice();
+            adminCurrentTab = 'reward';
+            adminTabBtns.forEach(function(btn) {
+                btn.classList.toggle('active', btn.getAttribute('data-admin-tab') === 'reward');
+            });
+            adminPanelInput.value = '';
+            var limitInput = document.getElementById('adminPanelLimitInput');
+            adminInitialLimit = getDailyLimit();
+            if (limitInput) limitInput.value = adminInitialLimit;
+            updateAdminCounts();
+            renderAdminList();
+            if (adminPanelOverlay) adminPanelOverlay.classList.add('show');
+        }
+
+        if (document.getElementById('versionAdmin')) {
+            document.getElementById('versionAdmin').addEventListener('click', function() {
+                if (adminPwdOverlay) {
+                    adminPwdInput.value = '';
+                    adminPwdOverlay.classList.add('show');
+                }
+            });
+        }
+        if (adminPwdInput) {
+            adminPwdInput.addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '').slice(0, 4);
+                if (this.value.length === 4) {
+                    if (this.value === ADMIN_PASSWORD) {
+                        if (adminPwdOverlay) adminPwdOverlay.classList.remove('show');
+                        openAdminPanel();
+                    } else {
+                        showToast('密码错误，请重新输入');
+                        this.value = '';
+                    }
+                }
+            });
+        }
+        adminTabBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var tab = this.getAttribute('data-admin-tab');
+                adminCurrentTab = tab;
+                adminTabBtns.forEach(function(b) { b.classList.toggle('active', b.getAttribute('data-admin-tab') === tab); });
+                renderAdminList();
+            });
+        });
+        if (adminPanelAddBtn && adminPanelInput) {
+            adminPanelAddBtn.addEventListener('click', function() {
+                var text = (adminPanelInput.value || '').trim();
+                if (!text) return;
+                var list = adminCurrentTab === 'reward' ? adminEditingReward : adminEditingPunishment;
+                list.push(text);
+                adminPanelInput.value = '';
+                updateAdminCounts();
+                renderAdminList();
+            });
+        }
+        if (document.getElementById('adminPanelClose')) {
+            document.getElementById('adminPanelClose').addEventListener('click', function() {
+                if (isAdminDirty()) {
+                    document.getElementById('adminCloseConfirmOverlay').classList.add('show');
+                } else {
+                    closeAdminPanel();
+                }
+            });
+        }
+        if (document.getElementById('adminCloseConfirmYes')) {
+            document.getElementById('adminCloseConfirmYes').addEventListener('click', function() {
+                document.getElementById('adminCloseConfirmOverlay').classList.remove('show');
+                closeAdminPanel();
+            });
+        }
+        if (document.getElementById('adminCloseConfirmNo')) {
+            document.getElementById('adminCloseConfirmNo').addEventListener('click', function() {
+                document.getElementById('adminCloseConfirmOverlay').classList.remove('show');
+            });
+        }
+        if (adminPanelConfirm) {
+            adminPanelConfirm.addEventListener('click', function() {
+                prizesReward = adminEditingReward.slice();
+                prizesPunishment = adminEditingPunishment.slice();
+                try {
+                    localStorage.setItem(PRIZES_REWARD_KEY, JSON.stringify(prizesReward));
+                    localStorage.setItem(PRIZES_PUNISHMENT_KEY, JSON.stringify(prizesPunishment));
+                    var limitInput = document.getElementById('adminPanelLimitInput');
+                    var limitVal = limitInput ? Math.max(0, parseInt(limitInput.value, 10) || 0) : 0;
+                    localStorage.setItem(SCRATCH_DAILY_LIMIT_KEY, String(limitVal));
+                } catch (e) {}
+                closeAdminPanel();
+                updateTodayCountDisplay();
+            });
+        }
+
         // --- 历史记录展开/收起（超过 10 条时）---
         const recordToggle = document.getElementById('recordToggle');
         if (recordToggle && recordList) {
@@ -1475,16 +2090,66 @@
             });
         }
 
-        // --- 清空记录 ---（只清空列表内容，保留历史记录框显示）
+        // --- 清空记录 ---（需管理者密码 2002，清空同时重置今日已刮次数）
+        var clearRecordPwdOverlay = document.getElementById('clearRecordPwdOverlay');
+        var clearRecordPwdInput = document.getElementById('clearRecordPwdInput');
+        var clearRecordPwdOk = document.getElementById('clearRecordPwdOk');
+        var clearRecordPwdCancel = document.getElementById('clearRecordPwdCancel');
+
         document.getElementById('clearRecordBtn').addEventListener('click', function(e){
             e.preventDefault();
             if (!recordList || !recordPanel) return;
+            if (clearRecordPwdOverlay) {
+                if (clearRecordPwdInput) clearRecordPwdInput.value = '';
+                clearRecordPwdOverlay.classList.add('show');
+            }
+        });
+
+        function closeClearRecordPwdOverlay() {
+            if (clearRecordPwdOverlay) clearRecordPwdOverlay.classList.remove('show');
+            if (clearRecordPwdInput) clearRecordPwdInput.value = '';
+        }
+
+        function doClearRecordsAndResetToday() {
+            records = [];
+            saveRecordsToStorage();
             recordList.innerHTML = '';
             recordCount = 0;
             recordPanel.classList.remove('has-many');
             recordList.classList.remove('collapsed');
             if (recordToggle) recordToggle.textContent = '展开';
-        });
+            setTodayCount(0);
+            updateTodayCountDisplay();
+        }
+
+        if (clearRecordPwdInput) {
+            clearRecordPwdInput.addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '').slice(0, 4);
+            });
+            clearRecordPwdInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (clearRecordPwdOk) clearRecordPwdOk.click();
+                }
+            });
+        }
+        if (clearRecordPwdOk) {
+            clearRecordPwdOk.addEventListener('click', function() {
+                var val = (clearRecordPwdInput && clearRecordPwdInput.value || '').trim();
+                if (val === ADMIN_PASSWORD) {
+                    closeClearRecordPwdOverlay();
+                    doClearRecordsAndResetToday();
+                } else {
+                    showToast('密码错误，请重新输入');
+                    if (clearRecordPwdInput) clearRecordPwdInput.value = '';
+                }
+            });
+        }
+        if (clearRecordPwdCancel) {
+            clearRecordPwdCancel.addEventListener('click', function() {
+                closeClearRecordPwdOverlay();
+            });
+        }
 
         // 历史记录框高度与刮奖区域一致（手机端同高）
         function syncRecordPanelHeight() {
@@ -1504,7 +2169,8 @@
             syncRecordPanelHeight();
         });
 
-        // 启动
+        // 启动（从 localStorage 恢复历史记录）
+        loadRecordsFromStorage();
         resizeCanvases();
         bindEvents();
         syncRecordPanelHeight();
@@ -1523,7 +2189,7 @@
         function unlockScratch() {
             if (passwordGateOverlay) passwordGateOverlay.style.display = 'none';
             if (cardEl) cardEl.style.display = '';
-            // 卡片从隐藏变为显示后，容器才有宽高，需重新计算 canvas 尺寸并重绘
+            updateTodayCountDisplay();
             requestAnimationFrame(function() {
                 resizeCanvases();
                 syncRecordPanelHeight();

@@ -112,18 +112,47 @@
             min-width: 0;
         }
 
+        .record-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            gap: 8px;
+        }
+
         .record-title {
             font-size: 1.05rem;
             font-weight: 700;
             color: #b1444f;
-            text-align: center;
-            margin-bottom: 8px;
+            text-align: left;
+        }
+
+        .record-toggle {
+            display: none;
+            background: #ffd2d5;
+            border: 1px solid #ff9aa8;
+            border-radius: 999px;
+            padding: 2px 10px;
+            font-size: 0.8rem;
+            color: #8b3a3f;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .record-panel.has-many .record-toggle {
+            display: block;
         }
 
         .record-list {
             max-height: 100%;
             overflow-y: auto;
             padding-right: 4px;
+            transition: max-height 0.25s ease;
+        }
+
+        .record-list.collapsed {
+            max-height: 200px;
+            overflow-y: hidden;
         }
 
         .record-item {
@@ -135,9 +164,26 @@
             margin-bottom: 6px;
             border: 1px solid #ffd2d5;
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
             gap: 6px;
             word-break: break-all;
+        }
+
+        .record-item-content {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .record-time {
+            font-size: 0.72rem;
+            color: #a07070;
+            width: 100%;
+            margin-top: 2px;
+            padding-left: 0;
         }
 
         .record-index {
@@ -148,6 +194,7 @@
             font-size: 0.78rem;
             font-weight: 700;
         }
+
 
         @media (max-width: 720px) {
             body {
@@ -192,6 +239,10 @@
                 padding: 10px 10px;
             }
 
+            .record-list.collapsed {
+                max-height: 200px;
+            }
+
             .record-title {
                 font-size: 0.98rem;
             }
@@ -199,6 +250,15 @@
             .record-item {
                 font-size: 0.8rem;
                 padding: 5px 8px;
+            }
+
+            .record-time {
+                font-size: 0.68rem;
+            }
+
+            .copyright {
+                font-size: 0.72rem;
+                margin-top: 18px;
             }
 
             .progress-bar {
@@ -265,6 +325,13 @@
         #prizeCanvas {
             z-index: 5;
             background: #fee3e3;  /* 暖色底 */
+        }
+
+        .copyright {
+            font-size: 0.8rem;
+            color: #8b5a5a;
+            text-align: center;
+            margin-top: 22px;
         }
 
         /* 刮开百分比指示器 */
@@ -373,9 +440,50 @@
             padding: 8px;
             border-radius: 60px;
         }
+
+        .toast-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.3);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .toast-overlay.show { display: flex; }
+        .toast-box {
+            position: relative;
+            background: #ffeef0;
+            border: 2px solid #ffc7cf;
+            border-radius: 30px;
+            padding: 14px 36px 14px 20px;
+            box-shadow: inset 0 2px 6px rgba(255, 190, 200, 0.8);
+            font-size: 0.9rem;
+            color: #8b3a3f;
+            font-weight: 500;
+            max-width: 320px;
+            text-align: center;
+        }
+        .toast-close {
+            position: absolute;
+            top: -6px;
+            right: 7px;
+            font-size: 1.4rem;
+            line-height: 1;
+            color: #8b3a3f;
+            cursor: pointer;
+        }
+        .toast-close:hover { opacity: 0.8; }
     </style>
 </head>
 <body>
+<div class="toast-overlay" id="toastOverlay">
+    <div class="toast-box" id="toastBox">
+        <span class="toast-close" id="toastClose">×</span>
+        <span class="toast-msg" id="toastMsg"></span>
+    </div>
+</div>
 <div class="card">
     <div class="title">💝 刮刮乐 💝</div>
     <div class="sub"><span>✨ 手指 / 鼠标 刮开 ✨</span></div>
@@ -388,10 +496,14 @@
             <canvas id="scratchCanvas" width="500" height="500"></canvas>
         </div>
         <div class="record-panel" id="recordPanel">
-            <div class="record-title">历史记录</div>
+            <div class="record-title-row">
+                <span class="record-title">历史记录</span>
+                <button type="button" class="record-toggle" id="recordToggle" aria-label="展开或收起记录">展开</button>
+            </div>
             <div class="record-list" id="recordList"></div>
         </div>
     </div>
+    <div class="copyright">Copyright © [2026] [刘昭昭有限公司]. All Rights Reserved.</div>
 
     <div class="progress-bar">
         <span style="display: flex; align-items: center; gap: 5px;">❤️ <span id="percentLabel">0%</span></span>
@@ -460,6 +572,17 @@
         const PRIZE_SCALE_DURATION = 260; // 毫秒
         let prizeScaleFrameId = null;
 
+        function formatRecordTime() {
+            const d = new Date();
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            const h = String(d.getHours()).padStart(2, '0');
+            const min = String(d.getMinutes()).padStart(2, '0');
+            const s = String(d.getSeconds()).padStart(2, '0');
+            return y + '-' + m + '-' + day + ' ' + h + ':' + min + ':' + s;
+        }
+
         function addRecordItem(text) {
             if (!recordPanel || !recordList || !text) return;
             recordPanel.style.display = 'block';
@@ -467,18 +590,29 @@
             const item = document.createElement('div');
             item.className = 'record-item';
 
+            const content = document.createElement('div');
+            content.className = 'record-item-content';
             const indexSpan = document.createElement('span');
             indexSpan.className = 'record-index';
             indexSpan.textContent = String(++recordCount);
-
             const textSpan = document.createElement('span');
             textSpan.textContent = text;
+            content.appendChild(indexSpan);
+            content.appendChild(textSpan);
 
-            item.appendChild(indexSpan);
-            item.appendChild(textSpan);
+            const timeSpan = document.createElement('div');
+            timeSpan.className = 'record-time';
+            timeSpan.textContent = formatRecordTime();
+
+            item.appendChild(content);
+            item.appendChild(timeSpan);
             recordList.appendChild(item);
 
-            // 滚动到底部，看到最新一条
+            if (recordCount > 5) {
+                recordPanel.classList.add('has-many');
+                recordList.classList.add('collapsed');
+                document.getElementById('recordToggle').textContent = '展开';
+            }
             recordList.scrollTop = recordList.scrollHeight;
         }
 
@@ -789,6 +923,54 @@
             }
         }
 
+        // 检测正中间区域（中奖内容区）是否已刮开；手机端需刮开10%，电脑端6%
+        function isCenterScraped() {
+            const w = scratchCanvas.width;
+            const h = scratchCanvas.height;
+            if (w === 0 || h === 0) return false;
+            const isMobile = (window.innerWidth || document.documentElement.clientWidth || 0) <= 720;
+            const threshold = isMobile ? 0.10 : 0.06;
+            const x0 = Math.floor(w * 0.3);
+            const y0 = Math.floor(h * 0.38);
+            const rw = Math.floor(w * 0.4);
+            const rh = Math.floor(h * 0.24);
+            if (rw <= 0 || rh <= 0) return false;
+            try {
+                const imageData = ctxScratch.getImageData(x0, y0, rw, rh);
+                const data = imageData.data;
+                let transparent = 0;
+                const total = rw * rh;
+                for (let i = 3; i < data.length; i += 4) {
+                    if (data[i] < 10) transparent++;
+                }
+                return total > 0 && (transparent / total) >= threshold;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function showToast(msg) {
+            const overlay = document.getElementById('toastOverlay');
+            const msgEl = document.getElementById('toastMsg');
+            const closeBtn = document.getElementById('toastClose');
+            if (msgEl) msgEl.textContent = msg;
+            if (overlay) {
+                overlay.classList.add('show');
+                overlay.onclick = function(ev) {
+                    if (ev.target === overlay) {
+                        overlay.classList.remove('show');
+                        overlay.onclick = null;
+                    }
+                };
+            }
+            if (closeBtn) {
+                closeBtn.onclick = function() {
+                    overlay.classList.remove('show');
+                    closeBtn.onclick = null;
+                };
+            }
+        }
+
         function updateProgress(percent) {
             const fill = document.getElementById('progressFill');
             const percentLabel = document.getElementById('percentLabel');
@@ -902,9 +1084,17 @@
             scratchCanvas.addEventListener('touchcancel', stopDraw, { passive: false });
         }
 
-        // --- 重置 ---
+        // --- 重置 ---（依据下方刮开进度条：手机端需≥10%，电脑端需≥6%）
         document.getElementById('resetBtn').addEventListener('click', function(e){
             e.preventDefault();
+
+            const percent = calculateScratchedPercent();
+            const isMobile = (window.innerWidth || document.documentElement.clientWidth || 0) <= 720;
+            const needPercent = isMobile ? 10 : 6;
+            if (percent < needPercent) {
+                showToast('目前未刮奖或未刮全中奖内容');
+                return;
+            }
 
             // 先记录当前已经刮开的结果
             const lastPrize = prizes[currentPrizeIndex];
@@ -920,12 +1110,25 @@
             updateProgress(0);
         });
 
+        // --- 历史记录展开/收起（超过 10 条时）---
+        const recordToggle = document.getElementById('recordToggle');
+        if (recordToggle && recordList) {
+            recordToggle.addEventListener('click', function() {
+                recordList.classList.toggle('collapsed');
+                recordToggle.textContent = recordList.classList.contains('collapsed') ? '展开' : '收起';
+            });
+        }
+
         // --- 清空记录 ---
         document.getElementById('clearRecordBtn').addEventListener('click', function(e){
             e.preventDefault();
-            if (!recordList) return;
+            if (!recordList || !recordPanel) return;
             recordList.innerHTML = '';
             recordCount = 0;
+            recordPanel.style.display = 'none';
+            recordPanel.classList.remove('has-many');
+            recordList.classList.remove('collapsed');
+            if (recordToggle) recordToggle.textContent = '展开';
         });
 
         // 初始化 & 窗口大小自适应

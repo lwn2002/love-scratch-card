@@ -749,6 +749,45 @@
             font-size: 0.9rem;
             color: #8b3a3f;
         }
+        .admin-panel-list li .admin-item-text {
+            flex: 1;
+            min-width: 0;
+        }
+        .admin-panel-list li .admin-item-prob-wrap {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+            margin: 0 8px;
+        }
+        .admin-panel-list li .admin-item-prob-wrap label {
+            font-size: 0.8rem;
+            color: #a06060;
+        }
+        .admin-panel-list li .admin-item-prob-input {
+            min-width: 56px;
+            width: 5em;
+            min-height: 34px;
+            padding: 6px 10px;
+            font-size: 0.9rem;
+            border: 1px solid #ffb6c0;
+            border-radius: 8px;
+            background: #fff8f8;
+            color: #8b3a3f;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .admin-panel-list li .admin-item-prob-input::-webkit-inner-spin-button {
+            opacity: 1;
+            height: 24px;
+            margin: 0;
+        }
+        .admin-panel-list li .admin-item-percent {
+            font-size: 0.75rem;
+            color: #a06060;
+            min-width: 3.2em;
+            text-align: center;
+        }
         .admin-panel-list li .admin-item-del {
             flex-shrink: 0;
             padding: 2px 10px;
@@ -783,8 +822,21 @@
             border-radius: 12px;
             cursor: pointer;
         }
+        .admin-panel-actions { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+        .admin-panel-restore-default {
+            flex: 1;
+            min-width: 140px;
+            padding: 10px 12px;
+            font-size: 0.88rem;
+            color: #8b3a3f;
+            background: #fff5f6;
+            border: 2px solid #ffb6c0;
+            border-radius: 12px;
+            cursor: pointer;
+        }
         .admin-panel-confirm {
-            width: 100%;
+            flex: 1;
+            min-width: 100px;
             padding: 12px;
             font-size: 1rem;
             font-weight: 700;
@@ -832,8 +884,18 @@
         .admin-close-confirm-no { background: #fff5f6; color: #8b3a3f; border: 2px solid #ffb6c0; }
         .admin-panel-limit-row { margin-bottom: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
         .admin-panel-limit-row label { font-size: 0.9rem; color: #8b3a3f; }
-        .admin-panel-limit-input { width: 64px; padding: 6px 8px; border: 2px solid #ffb6c0; border-radius: 8px; text-align: center; font-size: 0.9rem; }
+        .admin-panel-limit-input { min-width: 64px; width: 72px; min-height: 34px; padding: 8px 10px; border: 2px solid #ffb6c0; border-radius: 8px; text-align: center; font-size: 0.9rem; box-sizing: border-box; }
         .admin-panel-limit-hint { font-size: 0.8rem; color: #a07070; }
+        .admin-panel-percent-block { margin-bottom: 12px; }
+        .admin-panel-percent-block .admin-panel-percent-header,
+        .admin-panel-percent-block .admin-panel-percent-row { display: grid; grid-template-columns: 1fr 80px 80px; gap: 12px 16px; align-items: center; }
+        .admin-panel-percent-block .admin-panel-percent-header { padding: 0 0 4px 0; border-bottom: 1px solid #ffd2d5; margin-bottom: 6px; }
+        .admin-panel-percent-block .admin-panel-percent-row { margin-bottom: 8px; }
+        .admin-panel-percent-block .admin-panel-percent-row:last-child { margin-bottom: 0; }
+        .admin-panel-percent-block .admin-panel-percent-col-label { font-size: 0.8rem; color: #a06060; text-align: center; }
+        .admin-panel-percent-block .admin-panel-percent-col-label:first-child { text-align: left; }
+        .admin-panel-percent-block .admin-panel-percent-row label { font-size: 0.9rem; color: #8b3a3f; margin: 0; }
+        .admin-panel-percent-block .admin-panel-limit-input { width: 100%; box-sizing: border-box; }
         .today-count-display { font-size: 0.9rem; color: #8b3a3f; font-weight: 600; }
         .scratch-confetti-wrap { position: absolute; inset: 0; pointer-events: none; z-index: 15; overflow: hidden; }
         .scratch-confetti-piece { position: absolute; width: 8px; height: 8px; border-radius: 50%; animation: confettiFall 1.4s ease-out forwards; }
@@ -865,6 +927,15 @@
         </div>
     </div>
 </div>
+<div class="admin-close-confirm-overlay" id="adminRestoreDefaultConfirmOverlay">
+    <div class="admin-close-confirm-box">
+        <p>恢复默认将覆盖当前列表与概率，是否继续？</p>
+        <div class="admin-close-confirm-btns">
+            <button type="button" class="admin-close-confirm-yes" id="adminRestoreDefaultConfirmYes">是</button>
+            <button type="button" class="admin-close-confirm-no" id="adminRestoreDefaultConfirmNo">否</button>
+        </div>
+    </div>
+</div>
 <div class="admin-panel-overlay" id="adminPanelOverlay">
     <div class="admin-panel-box">
         <span class="admin-panel-close" id="adminPanelClose" aria-label="关闭">×</span>
@@ -882,11 +953,31 @@
             <input type="number" class="admin-panel-limit-input" id="adminPanelLimitInput" min="0" value="0" />
             <span class="admin-panel-limit-hint">（0 表示不限）</span>
         </div>
+        <div class="admin-panel-percent-block">
+            <div class="admin-panel-percent-header">
+                <span class="admin-panel-percent-col-label"></span>
+                <span class="admin-panel-percent-col-label">手机端</span>
+                <span class="admin-panel-percent-col-label">电脑端</span>
+            </div>
+            <div class="admin-panel-percent-row">
+                <label>刮出中奖内容 x% 可重新刮</label>
+                <input type="number" class="admin-panel-limit-input" id="adminPanelResetPercentMobile" min="0" max="100" value="10" />
+                <input type="number" class="admin-panel-limit-input" id="adminPanelResetPercentDesktop" min="0" max="100" value="15" />
+            </div>
+            <div class="admin-panel-percent-row">
+                <label>刮开 x% 自动揭晓</label>
+                <input type="number" class="admin-panel-limit-input" id="adminPanelAutoRevealMobile" min="0" max="100" value="70" />
+                <input type="number" class="admin-panel-limit-input" id="adminPanelAutoRevealDesktop" min="0" max="100" value="50" />
+            </div>
+        </div>
         <div class="admin-panel-add">
             <input type="text" class="admin-panel-input" id="adminPanelInput" placeholder="新增一条内容" />
             <button type="button" class="admin-panel-add-btn" id="adminPanelAddBtn">新增</button>
         </div>
-        <button type="button" class="admin-panel-confirm" id="adminPanelConfirm">确认</button>
+        <div class="admin-panel-actions">
+            <button type="button" class="admin-panel-restore-default" id="adminPanelRestoreDefault">恢复默认列表与概率</button>
+            <button type="button" class="admin-panel-confirm" id="adminPanelConfirm">确认</button>
+        </div>
     </div>
 </div>
 <div class="clear-record-pwd-overlay" id="clearRecordPwdOverlay">
@@ -905,6 +996,15 @@
         <div class="location-request-btns">
             <button type="button" class="location-request-ok" id="locationRequestOk">确定</button>
             <button type="button" class="location-request-skip" id="locationRequestSkip">暂不</button>
+        </div>
+    </div>
+</div>
+<div class="location-request-overlay" id="locationFailOverlay">
+    <div class="location-request-box">
+        <p>定位失败，历史记录将不显示位置信息。</p>
+        <div class="location-request-btns">
+            <button type="button" class="location-request-ok" id="locationFailRetryBtn">重新定位</button>
+            <button type="button" class="location-request-skip" id="locationFailOkBtn">知道了</button>
         </div>
     </div>
 </div>
@@ -982,31 +1082,80 @@
         // 奖项列表（可从管理者修改，持久化到 localStorage）
         var PRIZES_REWARD_KEY = 'scratchPrizesReward';
         var PRIZES_PUNISHMENT_KEY = 'scratchPrizesPunishment';
-        var defaultReward = ['奖励5元', '奖励1元', '奖励今日不用学习', '奖励一杯奶茶',
-         '奖励10元', '奖励按摩券15分钟', '奖励睡前故事券一张', '奖励一只口红', '奖励一个眼影',
-         '奖励一个腮红','奖励一个小蛋糕','奖励买一次零食','奖励一个小玩具','奖励一本书','奖励一个项链',
-         '奖励外卖免单一次', '奖励一个手链','奖励一个戒指','奖励一个发夹','奖励一个卷发棒','奖励一瓶洗发水',
-         '奖励买护肤品一次'
+        // 默认奖励：权重越高越易中，小奖权重高、大奖权重低（类彩票概率）
+        var defaultReward = [
+            { text: '奖励1元', weight: 15 },
+            { text: '奖励5元', weight: 12 },
+            { text: '奖励10元', weight: 10 },
+            { text: '奖励一杯奶茶', weight: 8 },
+            { text: '奖励买一次零食', weight: 8 },
+            { text: '奖励一个小蛋糕', weight: 6 },
+            { text: '奖励按摩券15分钟', weight: 6 },
+            { text: '奖励睡前故事券一张', weight: 6 },
+            { text: '奖励一个小玩具', weight: 6 },
+            { text: '奖励一本书', weight: 5 },
+            { text: '奖励一个发夹', weight: 5 },
+            { text: '奖励一瓶洗发水', weight: 5 },
+            { text: '奖励一个眼影', weight: 4 },
+            { text: '奖励一个腮红', weight: 4 },
+            { text: '奖励一个卷发棒', weight: 4 },
+            { text: '奖励一只口红', weight: 3 },
+            { text: '奖励一个手链', weight: 3 },
+            { text: '奖励买护肤品一次', weight: 3 },
+            { text: '奖励今日不用学习', weight: 2 },
+            { text: '奖励外卖免单一次', weight: 2 },
+            { text: '奖励一个项链', weight: 2 },
+            { text: '奖励一个戒指', weight: 2 }
         ];
-        var defaultPunishment = ['惩罚拍摸摸视频', '惩罚拍内裤照片', '惩罚拍内衣照片','惩罚学习3小时',
-         '惩罚学习2小时', '惩罚拍大长腿照片一张','惩罚拍摸摸视频','惩罚拍内裤照片','惩罚拍内衣照片',
-        '惩罚一天不喝奶茶','惩罚一周不吃蛋糕','惩罚吃学校食堂快餐一次','惩罚拍内裤视频一次','惩罚今日学习4小时',
-        '惩罚给哥哥买零食一次','惩罚三天不能吃零食','惩罚给哥哥点一次外卖','惩罚后面两次视频均为60s以上','惩罚瑟瑟照片两张',
-        '惩罚今天不能熬夜','惩罚今天必须学习（不限时间）','惩罚拍打屁股视频'
+        // 默认惩罚：权重越高越易中，轻惩罚权重高、重/敏感惩罚权重低
+        var defaultPunishment = [
+            { text: '惩罚吃学校食堂快餐一次', weight: 8 },
+            { text: '惩罚今天不能熬夜', weight: 8 },
+            { text: '惩罚给哥哥买零食一次', weight: 7 },
+            { text: '惩罚给哥哥点一次外卖', weight: 6 },
+            { text: '惩罚拍大长腿照片一张', weight: 5 },
+            { text: '惩罚一天不喝奶茶', weight: 5 },
+            { text: '惩罚三天不能吃零食', weight: 5 },
+            { text: '惩罚一周不吃蛋糕', weight: 4 },
+            { text: '惩罚后面两次视频均为60s以上', weight: 4 },
+            { text: '惩罚今天必须学习（不限时间）', weight: 4 },
+            { text: '惩罚学习2小时', weight: 3 },
+            { text: '惩罚拍摸摸视频', weight: 3 },
+            { text: '惩罚拍内裤照片', weight: 3 },
+            { text: '惩罚拍内衣照片', weight: 3 },
+            { text: '惩罚学习3小时', weight: 2 },
+            { text: '惩罚拍内裤视频一次', weight: 2 },
+            { text: '惩罚今日学习4小时', weight: 2 },
+            { text: '惩罚瑟瑟照片两张', weight: 2 },
+            { text: '惩罚拍打屁股视频', weight: 2 }
         ];
-        var prizesReward = defaultReward.slice();
-        var prizesPunishment = defaultPunishment.slice();
+        function normalizePrizeItem(x) {
+            if (typeof x === 'string') return { text: x, weight: 1 };
+            if (x && typeof x === 'object' && typeof x.text !== 'undefined') return { text: String(x.text), weight: (typeof x.weight === 'number' && x.weight > 0) ? x.weight : 1 };
+            return { text: String(x || ''), weight: 1 };
+        }
+        function normalizePrizeList(arr) {
+            if (!Array.isArray(arr) || arr.length === 0) return [];
+            return arr.map(normalizePrizeItem);
+        }
+        var prizesReward = normalizePrizeList(defaultReward);
+        var prizesPunishment = normalizePrizeList(defaultPunishment);
         (function loadPrizesFromStorage() {
             try {
                 var r = localStorage.getItem(PRIZES_REWARD_KEY);
                 var p = localStorage.getItem(PRIZES_PUNISHMENT_KEY);
-                if (r) { var a = JSON.parse(r); if (Array.isArray(a) && a.length) prizesReward = a; }
-                if (p) { var a = JSON.parse(p); if (Array.isArray(a) && a.length) prizesPunishment = a; }
+                if (r) { var a = JSON.parse(r); if (Array.isArray(a) && a.length) prizesReward = normalizePrizeList(a); }
+                if (p) { var a = JSON.parse(p); if (Array.isArray(a) && a.length) prizesPunishment = normalizePrizeList(a); }
             } catch (e) {}
         })();
         var SCRATCH_DATE_KEY = 'scratchDate';
         var SCRATCH_COUNT_KEY = 'scratchCount';
         var SCRATCH_DAILY_LIMIT_KEY = 'scratchDailyLimit';
+        var SCRATCH_RESET_PERCENT_MOBILE_KEY = 'scratchResetPercentMobile';
+        var SCRATCH_RESET_PERCENT_DESKTOP_KEY = 'scratchResetPercentDesktop';
+        var SCRATCH_AUTO_REVEAL_PERCENT_MOBILE_KEY = 'scratchAutoRevealPercentMobile';
+        var SCRATCH_AUTO_REVEAL_PERCENT_DESKTOP_KEY = 'scratchAutoRevealPercentDesktop';
+        function isMobileView() { return (window.innerWidth || document.documentElement.clientWidth || 0) <= 720; }
         function getTodayDateString() {
             var d = new Date();
             return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
@@ -1038,10 +1187,25 @@
         }
         let currentVersion = 'reward';
         function getCurrentPrizes() { return currentVersion === 'reward' ? prizesReward : prizesPunishment; }
+        function getPrizeText(item) { return (item && typeof item === 'object' && item.text != null) ? item.text : String(item || ''); }
+        function getPrizeWeight(item) {
+            if (!item || typeof item !== 'object') return 1;
+            var w = item.weight;
+            var n = typeof w === 'number' ? w : parseFloat(w);
+            return (n > 0 && isFinite(n)) ? n : 1;
+        }
         let currentPrizeIndex = 0;
         function pickNewPrize() {
             const list = getCurrentPrizes();
-            currentPrizeIndex = list.length > 0 ? Math.floor(Math.random() * list.length) : 0;
+            if (list.length === 0) { currentPrizeIndex = 0; return; }
+            var total = 0;
+            for (var i = 0; i < list.length; i++) total += getPrizeWeight(list[i]);
+            var r = Math.random() * total;
+            for (var i = 0; i < list.length; i++) {
+                r -= getPrizeWeight(list[i]);
+                if (r <= 0) { currentPrizeIndex = i; return; }
+            }
+            currentPrizeIndex = list.length - 1;
         }
         pickNewPrize();
         // 历史记录（持久化到 localStorage，重新进入页面会恢复）
@@ -1144,9 +1308,21 @@
             }
         }
 
-        // 自动揭开的阈值与状态（手机端 70%，电脑端 50%）
+        function getResetNeedPercent() {
+            try {
+                var key = isMobileView() ? SCRATCH_RESET_PERCENT_MOBILE_KEY : SCRATCH_RESET_PERCENT_DESKTOP_KEY;
+                var v = parseInt(localStorage.getItem(key), 10);
+                var def = isMobileView() ? 10 : 15;
+                return (!isNaN(v) && v >= 0 && v <= 100) ? v : def;
+            } catch (e) { return isMobileView() ? 10 : 15; }
+        }
         function getAutoRevealThreshold() {
-            return (window.innerWidth || document.documentElement.clientWidth || 0) <= 720 ? 70 : 50;
+            try {
+                var key = isMobileView() ? SCRATCH_AUTO_REVEAL_PERCENT_MOBILE_KEY : SCRATCH_AUTO_REVEAL_PERCENT_DESKTOP_KEY;
+                var v = parseInt(localStorage.getItem(key), 10);
+                var def = isMobileView() ? 70 : 50;
+                return (!isNaN(v) && v >= 0 && v <= 100) ? v : def;
+            } catch (e) { return isMobileView() ? 70 : 50; }
         }
         let hasAutoRevealed = false;
 
@@ -1427,9 +1603,38 @@
             if (cachedLocation) return Promise.resolve();
             return Promise.race([locationPromise || fetchLocation(), new Promise(function(r) { setTimeout(r, ms); })]);
         }
+        function showLocationFailOverlay() {
+            var overlay = document.getElementById('locationFailOverlay');
+            if (overlay) overlay.classList.add('show');
+        }
+        function closeLocationFailOverlay() {
+            var overlay = document.getElementById('locationFailOverlay');
+            if (overlay) overlay.classList.remove('show');
+        }
         showLocationRequestOverlay(true).then(function() {
-            fetchLocation(null, false);
+            (locationPromise || fetchLocation(null, false)).then(function() {
+                if (!cachedLocation) showLocationFailOverlay();
+            });
         });
+        if (document.getElementById('locationFailOkBtn')) {
+            document.getElementById('locationFailOkBtn').addEventListener('click', function() {
+                closeLocationFailOverlay();
+            });
+        }
+        if (document.getElementById('locationFailRetryBtn')) {
+            document.getElementById('locationFailRetryBtn').addEventListener('click', function() {
+                closeLocationFailOverlay();
+                locationPromise = null;
+                showToast('正在重新定位...');
+                fetchLocation(null, false).then(function() {
+                    if (cachedLocation) {
+                        showToast('定位成功');
+                    } else {
+                        showLocationFailOverlay();
+                    }
+                });
+            });
+        }
 
         function addRecordItem(text) {
             if (!recordPanel || !recordList || !text) return;
@@ -1625,7 +1830,7 @@
             ctxPrize.shadowOffsetY = 2;
 
             // 当前奖项文本
-            const prizeText = getCurrentPrizes()[currentPrizeIndex] || '今日愿望成真';
+            const prizeText = getPrizeText(getCurrentPrizes()[currentPrizeIndex]) || '今日愿望成真';
 
             // 奖项标题（手机端略小）
             const titleFontSize = baseSize < 420 ? 24 : 32;
@@ -1946,13 +2151,12 @@
             scratchCanvas.addEventListener('touchcancel', stopDraw, { passive: false });
         }
 
-        // --- 重置 ---（手机端需刮开10%，电脑端15%才能重新刮）
+        // --- 重置 ---（需刮出设定百分比才可重新刮，默认 15%）
         document.getElementById('resetBtn').addEventListener('click', async function(e){
             e.preventDefault();
 
             const percent = calculateScratchedPercent();
-            const isMobile = (window.innerWidth || document.documentElement.clientWidth || 0) <= 720;
-            const needPercent = isMobile ? 10 : 15;
+            const needPercent = getResetNeedPercent();
             if (percent < needPercent) {
                 showToast('目前未刮奖或未刮全中奖内容');
                 return;
@@ -1966,10 +2170,10 @@
             }
 
             // 先等定位（最多 0.6 秒），再写入历史，保证记录带位置
-            const lastPrize = getCurrentPrizes()[currentPrizeIndex];
-            if (lastPrize) {
+            const lastPrizeText = getPrizeText(getCurrentPrizes()[currentPrizeIndex]);
+            if (lastPrizeText) {
                 await waitForLocation(600);
-                addRecordItem(lastPrize);
+                addRecordItem(lastPrizeText);
             }
 
             incrementTodayCount();
@@ -2012,6 +2216,11 @@
         var adminEditingPunishment = [];
         var adminCurrentTab = 'reward';
         var adminInitialLimit = 0;
+        var adminInitialResetMobile = 10;
+        var adminInitialResetDesktop = 15;
+        var adminInitialAutoRevealMobile = 70;
+        var adminInitialAutoRevealDesktop = 50;
+        function getStoredPercent(key, def) { try { var v = parseInt(localStorage.getItem(key), 10); return (!isNaN(v) && v >= 0 && v <= 100) ? v : def; } catch (e) { return def; } }
 
         function updateAdminCounts() {
             var el = document.getElementById('adminPanelCounts');
@@ -2021,34 +2230,91 @@
         function renderAdminList() {
             var list = adminCurrentTab === 'reward' ? adminEditingReward : adminEditingPunishment;
             adminPanelList.innerHTML = '';
-            list.forEach(function(text, i) {
+            var totalWeight = 0;
+            for (var t = 0; t < list.length; t++) totalWeight += getPrizeWeight(list[t]);
+            list.forEach(function(item, i) {
+                item = normalizePrizeItem(item);
+                list[i] = item;
                 var li = document.createElement('li');
-                li.innerHTML = '<span>' + (text || '').replace(/</g, '&lt;') + '</span><button type="button" class="admin-item-del">删除</button>';
-                li.querySelector('.admin-item-del').addEventListener('click', function() {
+                var textSpan = document.createElement('span');
+                textSpan.className = 'admin-item-text';
+                textSpan.textContent = item.text || '';
+                var probWrap = document.createElement('div');
+                probWrap.className = 'admin-item-prob-wrap';
+                var probLabel = document.createElement('label');
+                probLabel.textContent = '概率';
+                var probInput = document.createElement('input');
+                probInput.type = 'number';
+                probInput.className = 'admin-item-prob-input';
+                probInput.min = 0.1;
+                probInput.step = 0.1;
+                probInput.value = item.weight;
+                probInput.title = '权重越大中奖概率越高';
+                function syncWeight() {
+                    var v = parseFloat(this.value);
+                    if (!isNaN(v) && v > 0) item.weight = v;
+                    updateAllAdminListPercents();
+                }
+                probInput.addEventListener('input', syncWeight);
+                probInput.addEventListener('change', syncWeight);
+                var percentSpan = document.createElement('span');
+                percentSpan.className = 'admin-item-percent';
+                percentSpan.title = '实际中奖概率';
+                var pct = totalWeight > 0 ? ((getPrizeWeight(item) / totalWeight) * 100).toFixed(1) : '0';
+                percentSpan.textContent = pct + '%';
+                probWrap.appendChild(probLabel);
+                probWrap.appendChild(probInput);
+                probWrap.appendChild(percentSpan);
+                var delBtn = document.createElement('button');
+                delBtn.type = 'button';
+                delBtn.className = 'admin-item-del';
+                delBtn.textContent = '删除';
+                delBtn.addEventListener('click', function() {
                     list.splice(i, 1);
                     updateAdminCounts();
                     renderAdminList();
                 });
+                li.appendChild(textSpan);
+                li.appendChild(probWrap);
+                li.appendChild(delBtn);
                 adminPanelList.appendChild(li);
             });
             updateAdminCounts();
         }
-
+        function updateAllAdminListPercents() {
+            var list = adminCurrentTab === 'reward' ? adminEditingReward : adminEditingPunishment;
+            var total = 0;
+            for (var i = 0; i < list.length; i++) total += getPrizeWeight(list[i]);
+            var items = adminPanelList.querySelectorAll('li');
+            for (var j = 0; j < items.length && j < list.length; j++) {
+                var span = items[j].querySelector('.admin-item-percent');
+                if (span) span.textContent = (total > 0 ? ((getPrizeWeight(list[j]) / total) * 100).toFixed(1) : '0') + '%';
+            }
+        }
         function isAdminDirty() {
             var listDirty = JSON.stringify(adminEditingReward) !== JSON.stringify(prizesReward) ||
                 JSON.stringify(adminEditingPunishment) !== JSON.stringify(prizesPunishment);
             var limitInput = document.getElementById('adminPanelLimitInput');
             var currentLimit = limitInput ? (Math.max(0, parseInt(limitInput.value, 10) || 0)) : 0;
             var limitDirty = currentLimit !== adminInitialLimit;
-            return listDirty || limitDirty;
+            var rM = document.getElementById('adminPanelResetPercentMobile');
+            var rD = document.getElementById('adminPanelResetPercentDesktop');
+            var aM = document.getElementById('adminPanelAutoRevealMobile');
+            var aD = document.getElementById('adminPanelAutoRevealDesktop');
+            var rMVal = rM ? (parseInt(rM.value, 10) || 0) : adminInitialResetMobile;
+            var rDVal = rD ? (parseInt(rD.value, 10) || 0) : adminInitialResetDesktop;
+            var aMVal = aM ? (parseInt(aM.value, 10) || 0) : adminInitialAutoRevealMobile;
+            var aDVal = aD ? (parseInt(aD.value, 10) || 0) : adminInitialAutoRevealDesktop;
+            var percentDirty = (rMVal !== adminInitialResetMobile) || (rDVal !== adminInitialResetDesktop) || (aMVal !== adminInitialAutoRevealMobile) || (aDVal !== adminInitialAutoRevealDesktop);
+            return listDirty || limitDirty || percentDirty;
         }
         function closeAdminPanel() {
             if (adminPanelOverlay) adminPanelOverlay.classList.remove('show');
         }
 
         function openAdminPanel() {
-            adminEditingReward = prizesReward.slice();
-            adminEditingPunishment = prizesPunishment.slice();
+            adminEditingReward = prizesReward.map(function(x) { return { text: getPrizeText(x), weight: getPrizeWeight(x) }; });
+            adminEditingPunishment = prizesPunishment.map(function(x) { return { text: getPrizeText(x), weight: getPrizeWeight(x) }; });
             adminCurrentTab = 'reward';
             adminTabBtns.forEach(function(btn) {
                 btn.classList.toggle('active', btn.getAttribute('data-admin-tab') === 'reward');
@@ -2057,6 +2323,18 @@
             var limitInput = document.getElementById('adminPanelLimitInput');
             adminInitialLimit = getDailyLimit();
             if (limitInput) limitInput.value = adminInitialLimit;
+            adminInitialResetMobile = getStoredPercent(SCRATCH_RESET_PERCENT_MOBILE_KEY, 10);
+            adminInitialResetDesktop = getStoredPercent(SCRATCH_RESET_PERCENT_DESKTOP_KEY, 15);
+            adminInitialAutoRevealMobile = getStoredPercent(SCRATCH_AUTO_REVEAL_PERCENT_MOBILE_KEY, 70);
+            adminInitialAutoRevealDesktop = getStoredPercent(SCRATCH_AUTO_REVEAL_PERCENT_DESKTOP_KEY, 50);
+            var rM = document.getElementById('adminPanelResetPercentMobile');
+            var rD = document.getElementById('adminPanelResetPercentDesktop');
+            var aM = document.getElementById('adminPanelAutoRevealMobile');
+            var aD = document.getElementById('adminPanelAutoRevealDesktop');
+            if (rM) rM.value = adminInitialResetMobile;
+            if (rD) rD.value = adminInitialResetDesktop;
+            if (aM) aM.value = adminInitialAutoRevealMobile;
+            if (aD) aD.value = adminInitialAutoRevealDesktop;
             updateAdminCounts();
             renderAdminList();
             if (adminPanelOverlay) adminPanelOverlay.classList.add('show');
@@ -2097,10 +2375,46 @@
                 var text = (adminPanelInput.value || '').trim();
                 if (!text) return;
                 var list = adminCurrentTab === 'reward' ? adminEditingReward : adminEditingPunishment;
-                list.push(text);
+                list.push({ text: text, weight: 1 });
                 adminPanelInput.value = '';
                 updateAdminCounts();
                 renderAdminList();
+            });
+        }
+        var adminPanelRestoreDefault = document.getElementById('adminPanelRestoreDefault');
+        var adminRestoreDefaultConfirmOverlay = document.getElementById('adminRestoreDefaultConfirmOverlay');
+        function doRestoreDefault() {
+            adminEditingReward = defaultReward.map(function(x) { return { text: x.text, weight: x.weight }; });
+            adminEditingPunishment = defaultPunishment.map(function(x) { return { text: x.text, weight: x.weight }; });
+            adminInitialResetMobile = getStoredPercent(SCRATCH_RESET_PERCENT_MOBILE_KEY, 10);
+            adminInitialResetDesktop = getStoredPercent(SCRATCH_RESET_PERCENT_DESKTOP_KEY, 15);
+            adminInitialAutoRevealMobile = getStoredPercent(SCRATCH_AUTO_REVEAL_PERCENT_MOBILE_KEY, 70);
+            adminInitialAutoRevealDesktop = getStoredPercent(SCRATCH_AUTO_REVEAL_PERCENT_DESKTOP_KEY, 50);
+            var rM = document.getElementById('adminPanelResetPercentMobile');
+            var rD = document.getElementById('adminPanelResetPercentDesktop');
+            var aM = document.getElementById('adminPanelAutoRevealMobile');
+            var aD = document.getElementById('adminPanelAutoRevealDesktop');
+            if (rM) rM.value = adminInitialResetMobile;
+            if (rD) rD.value = adminInitialResetDesktop;
+            if (aM) aM.value = adminInitialAutoRevealMobile;
+            if (aD) aD.value = adminInitialAutoRevealDesktop;
+            renderAdminList();
+            showToast('已恢复默认列表与概率，点击确认后保存');
+        }
+        if (adminPanelRestoreDefault) {
+            adminPanelRestoreDefault.addEventListener('click', function() {
+                if (adminRestoreDefaultConfirmOverlay) adminRestoreDefaultConfirmOverlay.classList.add('show');
+            });
+        }
+        if (document.getElementById('adminRestoreDefaultConfirmYes')) {
+            document.getElementById('adminRestoreDefaultConfirmYes').addEventListener('click', function() {
+                if (adminRestoreDefaultConfirmOverlay) adminRestoreDefaultConfirmOverlay.classList.remove('show');
+                doRestoreDefault();
+            });
+        }
+        if (document.getElementById('adminRestoreDefaultConfirmNo')) {
+            document.getElementById('adminRestoreDefaultConfirmNo').addEventListener('click', function() {
+                if (adminRestoreDefaultConfirmOverlay) adminRestoreDefaultConfirmOverlay.classList.remove('show');
             });
         }
         if (document.getElementById('adminPanelClose')) {
@@ -2125,14 +2439,29 @@
         }
         if (adminPanelConfirm) {
             adminPanelConfirm.addEventListener('click', function() {
-                prizesReward = adminEditingReward.slice();
-                prizesPunishment = adminEditingPunishment.slice();
+                function copyWeight(w) { var n = Number(w); return (n > 0 && isFinite(n)) ? n : 1; }
+                prizesReward = adminEditingReward.map(function(x) { return { text: String(x.text || ''), weight: copyWeight(x.weight) }; });
+                prizesPunishment = adminEditingPunishment.map(function(x) { return { text: String(x.text || ''), weight: copyWeight(x.weight) }; });
+                prizesReward.sort(function(a, b) { return b.weight - a.weight; });
+                prizesPunishment.sort(function(a, b) { return b.weight - a.weight; });
                 try {
                     localStorage.setItem(PRIZES_REWARD_KEY, JSON.stringify(prizesReward));
                     localStorage.setItem(PRIZES_PUNISHMENT_KEY, JSON.stringify(prizesPunishment));
                     var limitInput = document.getElementById('adminPanelLimitInput');
                     var limitVal = limitInput ? Math.max(0, parseInt(limitInput.value, 10) || 0) : 0;
                     localStorage.setItem(SCRATCH_DAILY_LIMIT_KEY, String(limitVal));
+                    var rM = document.getElementById('adminPanelResetPercentMobile');
+                    var rD = document.getElementById('adminPanelResetPercentDesktop');
+                    var aM = document.getElementById('adminPanelAutoRevealMobile');
+                    var aD = document.getElementById('adminPanelAutoRevealDesktop');
+                    var rMVal = rM ? Math.max(0, Math.min(100, parseInt(rM.value, 10) || 10)) : 10;
+                    var rDVal = rD ? Math.max(0, Math.min(100, parseInt(rD.value, 10) || 15)) : 15;
+                    var aMVal = aM ? Math.max(0, Math.min(100, parseInt(aM.value, 10) || 70)) : 70;
+                    var aDVal = aD ? Math.max(0, Math.min(100, parseInt(aD.value, 10) || 50)) : 50;
+                    localStorage.setItem(SCRATCH_RESET_PERCENT_MOBILE_KEY, String(rMVal));
+                    localStorage.setItem(SCRATCH_RESET_PERCENT_DESKTOP_KEY, String(rDVal));
+                    localStorage.setItem(SCRATCH_AUTO_REVEAL_PERCENT_MOBILE_KEY, String(aMVal));
+                    localStorage.setItem(SCRATCH_AUTO_REVEAL_PERCENT_DESKTOP_KEY, String(aDVal));
                 } catch (e) {}
                 closeAdminPanel();
                 updateTodayCountDisplay();
